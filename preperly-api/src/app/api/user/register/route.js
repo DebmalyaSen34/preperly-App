@@ -15,7 +15,7 @@ export async function POST(request){
             ownerPhoneNumber,
             ownerEmail,
             receiveUpdatesOnWhatsApp
-        } = request.body;
+        } = await request.json();
 
         if(!restaurantName || !restaurantAddress || !phoneNumber || !email || !password || !ownerName || !ownerPhoneNumber || !ownerEmail){
             return NextResponse.json({message: "Please fill in all the fields!"}, {status: 400});
