@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
+if (!URI) {
     throw new Error(
         "Please define the MONGODB_URI environment variable inside .env.local"
     );
@@ -22,7 +22,7 @@ async function connectToDatabase() {
 
     if (!cached.promise) {
         cached.promise = mongoose
-            .connect(MONGODB_URI)
+            .connect(URI)
             .then((mongoose) => {
                 console.log("New database connection established");
                 return mongoose;
