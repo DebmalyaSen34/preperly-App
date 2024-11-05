@@ -18,6 +18,8 @@ export async function GET(request){
         } = request.body;
 
         connectToDatabase();
+
+        return NextResponse.json({message: "User is successfully registered!"}, {status: 200});
     } catch (error) {
         return NextResponse.json({message: "Error"}, {status: 500});
         
