@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.preperly.app-mergeDebugResources-65:/values-port/values-port.xml",
+            "map": [
+                {
+                    "source": "/home/gnana/.gradle/caches/transforms-4/7f47dc9b208f8fd87b1e0af4687da129/transformed/appcompat-1.7.0/res/values-port/values-port.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "55",
+                        "endOffsets": "106"
+                    }
+                }
+            ]
+        }
+    ]
+}
