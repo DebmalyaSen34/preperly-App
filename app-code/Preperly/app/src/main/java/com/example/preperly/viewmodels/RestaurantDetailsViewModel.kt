@@ -125,20 +125,23 @@ class RestaurantDetailsViewModel : ViewModel() {
             restaurantNameError.value = "Restaurant name cannot be empty"
             return false
         } else if (!isValidName(restaurantName.value)) {
-            restaurantNameError.value = ""
+            restaurantNameError.value = "Name must be 2-50 characters, and can only contain letters, spaces, ', or -."
             return false
         }
+        restaurantNameError.value = ""
         return true
     }
 
     private fun validateRestaurantAddress(): Boolean {
-        return if (restaurantAddress.value.isBlank()) {
+        if (restaurantAddress.value.isBlank()) {
             restaurantAddressError.value = "Restaurant address cannot be empty"
-            false
-        } else {
-            restaurantAddressError.value = null
-            true
+            return false
+        } else if(!isValidAddress(restaurantAddress.value)) {
+            restaurantAddressError.value = "Address must be 5-100 characters, and can only contain letters, numbers, spaces, ,, ., or -."
+            return false
         }
+        restaurantAddressError.value = ""
+        return true
     }
 
     private fun validatePhoneNumber(): Boolean {
@@ -202,13 +205,16 @@ class RestaurantDetailsViewModel : ViewModel() {
     }
 
     private fun validateOwnerName(): Boolean {
-        return if (ownerName.value.isBlank()) {
-            ownerNameError.value = "Restaurant name cannot be empty"
-            false
-        } else {
-            ownerNameError.value = null
-            true
+        if (ownerName.value.isBlank()) {
+            ownerNameError.value = "Owner name cannot be empty"
+            return false
+        } else if(!isValidName(ownerName.value)) {
+            ownerNameError.value = "Owner name must be 2-50 characters, and can only contain letters, spaces, ', or -"
+            return false
         }
+
+        ownerNameError.value = null
+        return true
     }
     private fun validateOwnerPhone(): Boolean {
         return if (ownerPhoneNumber.value.isBlank() || ownerPhoneNumber.value.length < 10) {
@@ -235,7 +241,7 @@ class RestaurantDetailsViewModel : ViewModel() {
         return namePattern.matcher(name).matches()
     }
 
-    fun isValidAddress(address: String): Boolean {
+    private fun isValidAddress(address: String): Boolean {
 
         val addressPattern = Pattern.compile("^[a-zA-Z0-9\\s,.-]{5,100}$")
         return addressPattern.matcher(address).matches()
