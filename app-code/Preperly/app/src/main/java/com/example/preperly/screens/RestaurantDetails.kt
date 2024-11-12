@@ -308,7 +308,6 @@ fun RestaurantRegistrationForm(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-
                 passwordError?.let {
                     Text(text = it, color = Color.Red, fontSize = 12.sp)
                 }

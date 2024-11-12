@@ -15,6 +15,8 @@ class RestaurantTypeViewModel {
 
     var currentStep by mutableIntStateOf(2)
     var cuisineType by mutableStateOf("")
+    var cuisineTypeError = mutableStateOf<String?>(null)
+        private set
     var openTime by mutableStateOf("11:00 AM")
     var closeTime by mutableStateOf("9:00 PM")
     var openTimeAdv by mutableStateOf("11:00 AM")
@@ -26,7 +28,7 @@ class RestaurantTypeViewModel {
 
     val selectedDays = mutableStateListOf<String>()
 
-    var selectedDayAdv by mutableStateOf("Monday")
+    var selectedDayAdv by mutableStateOf("Select Day")
 
     data class TimeSlot(var openTime: String, var closeTime: String)
     // Stores multiple time slots per day
@@ -42,37 +44,9 @@ class RestaurantTypeViewModel {
         }
     }
 
-//    fun saveAdvTimeSlot(){
-//
-//        if (timeSlots[selectedDayAdv] == null) {
-//            timeSlots[selectedDayAdv] = mutableSetOf()
-//        }
-//
-//        timeSlots[selectedDayAdv]?.add(
-//            TimeSlot(
-//                openTimeAdv,
-//                closeTimeAdv
-//            )
-//        )
-//    }
-//    fun saveTimeSlot(){
-//
-//        selectedDays.forEach { day ->
-//
-//            if (timeSlots[day] == null) {
-//                timeSlots[day] = mutableSetOf()
-//            }
-//            timeSlots[day]?.add(
-//                TimeSlot(
-//                    openTime,
-//                    closeTime
-//                )
-//            )
-//        }
-//
-//    }
-
     fun saveTimeSlot() {
+
+        isValidString(cuisineType)
 
         selectedDays.forEach { day ->
             val timeSlot = TimeSlot(openTime, closeTime)
@@ -96,35 +70,43 @@ class RestaurantTypeViewModel {
             if (timeSlots[day] == null) {
                 timeSlots[day] = mutableSetOf()
             }
-            timeSlots[day]?.add(timeSlot)
+            if (!timeSlots[day]!!.contains(timeSlot)) {
+                timeSlots[day]?.add(timeSlot)
+            }
         }
     }
 
     fun saveAdvTimeSlot() {
         val timeSlot = TimeSlot(openTimeAdv, closeTimeAdv)
 
-        if (!isValidTimeFormat(openTimeAdv) || !isValidTimeFormat(closeTimeAdv)) {
-            errorMessage = "Invalid time format. Please use hh:mm AM/PM format."
-            return
-        }
+        if(selectedDayAdv != "Select Day"){
 
-        if (!isOpenTimeBeforeCloseTime(openTimeAdv, closeTimeAdv)) {
-            errorMessage = "Open time must be before close time."
-            return
-        }
+            if (!isValidTimeFormat(openTimeAdv) || !isValidTimeFormat(closeTimeAdv)) {
+                errorMessage = "Invalid time format. Please use hh:mm AM/PM format."
+                return
+            }
 
-        if (isTimeSlotOverlap(selectedDayAdv, timeSlot)) {
-            errorMessage = "Time slot overlaps with an existing slot for $selectedDayAdv."
-            return
-        }
+            if (!isOpenTimeBeforeCloseTime(openTimeAdv, closeTimeAdv)) {
+                errorMessage = "Open time must be before close time."
+                return
+            }
 
-        errorMessage = ""
-        if (timeSlots[selectedDayAdv] == null) {
-            timeSlots[selectedDayAdv] = mutableSetOf()
+            if (isTimeSlotOverlap(selectedDayAdv, timeSlot)) {
+                errorMessage = "Time slot overlaps with an existing slot for $selectedDayAdv."
+                return
+            }
+
+            errorMessage = ""
+            if (timeSlots[selectedDayAdv] == null) {
+                timeSlots[selectedDayAdv] = mutableSetOf()
+            }
+
+            if (!timeSlots[selectedDayAdv]!!.contains(timeSlot)) {
+                timeSlots[selectedDayAdv]?.add(timeSlot)
+            }
+            timeSlots[selectedDayAdv]?.add(timeSlot)
         }
-        timeSlots[selectedDayAdv]?.add(timeSlot)
     }
-
 
     private fun isValidTimeFormat(time: String): Boolean {
         return timePattern.matcher(time).matches()
@@ -156,5 +138,15 @@ class RestaurantTypeViewModel {
             }
         }
         return false
+    }
+    private fun isValidString(name: String) {
+
+        val namePattern = Pattern.compile("^[a-zA-Z\\s'-]{2,50}$")
+        if(!namePattern.matcher(name).matches()){
+            cuisineTypeError.value = "The length must be 2-50 characters, and can only contain letters, spaces, ', or -."
+        }
+        if(name.isEmpty()){
+            cuisineTypeError.value = "The cuisine type cannot be empty"
+        }
     }
 }

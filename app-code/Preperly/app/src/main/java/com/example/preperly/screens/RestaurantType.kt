@@ -49,7 +49,7 @@ fun RestaurantTypeAndTimingsScreen(
 ) {
 
     var isDialogVisible by remember { mutableStateOf(false) }
-
+    val cuisineTypeError by viewModel.cuisineTypeError
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -69,9 +69,14 @@ fun RestaurantTypeAndTimingsScreen(
             value = viewModel.cuisineType,
             onValueChange = { viewModel.cuisineType = it },
             label = { Text("Cuisine type*") },
+            isError = cuisineTypeError != null,
             placeholder = { Text("Best describe the food you serve") },
             modifier = Modifier.fillMaxWidth()
         )
+
+        cuisineTypeError?.let {
+            Text(text = it, color = Color.Red, fontSize = 12.sp)
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -167,8 +172,8 @@ fun RestaurantTypeAndTimingsScreen(
                 onClick = {
 
                     viewModel.saveTimeSlot()
-                    if (viewModel.errorMessage.isEmpty()) {
-                        viewModel.readTimeSlot()
+                    viewModel.readTimeSlot()
+                    if (viewModel.errorMessage.isEmpty() && cuisineTypeError?.isEmpty() == true && viewModel.selectedDays.size >=1) {
                         onNext()
                     }
                 },
@@ -184,7 +189,7 @@ fun RestaurantTypeAndTimingsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeSlotDialog(viewModel: RestaurantTypeViewModel, onDismiss: () -> Unit) {
-    val daysOfWeek = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+    val daysOfWeek = listOf("Select Day","Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
     var isDropdownExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
