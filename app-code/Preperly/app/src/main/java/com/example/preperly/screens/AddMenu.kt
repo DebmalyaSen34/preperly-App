@@ -48,7 +48,6 @@ fun MenuUploadScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-//            .verticalScroll(rememberScrollState())
             .padding(top = 50.dp, start = 20.dp, end = 20.dp, bottom = 20.dp)
     ) {
         ProgressIndicator(currentStep = viewModel.currentStep)
@@ -77,15 +76,26 @@ fun MenuUploadScreen(
             }
         }
 
-        // Categories and their subcategories
-        viewModel.categories.forEach { category ->
-            CategoryItem(
-                category = category,
-                onAddSubCategory = { selectedCategoryForSubCategory = category }
-            )
+        // Add Item Button
+
+        // LazyColumn should handle the scrolling of menu items
+        LazyColumn {
+            items(viewModel.categories) { category ->
+                CategoryItem(
+                    category = category,
+                    onAddSubCategory = { selectedCategoryForSubCategory = category }
+                )
+            }
+
+            // Add Items in the list (inside LazyColumn for scroll)
+            items(viewModel.menuItems) { item ->
+                MenuItemCard(
+                    item = item,
+                    onEdit = { editingItem = item }
+                )
+            }
         }
 
-        // Add Item Button
         TextButton(
             onClick = { showAddItemDialog = true },
             colors = ButtonDefaults.textButtonColors(contentColor = myRed),
@@ -99,18 +109,7 @@ fun MenuUploadScreen(
             )
         }
 
-
-        // Menu Items List
-        LazyColumn {
-            items(viewModel.menuItems) { item ->
-                MenuItemCard(
-                    item = item,
-                    onEdit = { editingItem = item }
-                )
-            }
-        }
-
-        // Navigation Buttons
+        // Navigation Buttons (this is not inside LazyColumn, will stay fixed at the bottom)
         Row(
             modifier = Modifier
                 .fillMaxWidth()

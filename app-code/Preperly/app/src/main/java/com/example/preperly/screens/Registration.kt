@@ -18,6 +18,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.preperly.ui.theme.myRed
 import com.example.preperly.viewmodels.DocumentsUploadViewModel
 import com.example.preperly.viewmodels.MenuViewModel
+import com.example.preperly.viewmodels.RestaurantDashboardViewModel
 import com.example.preperly.viewmodels.RestaurantDetailsViewModel
 import com.example.preperly.viewmodels.RestaurantTypeViewModel
 import com.example.preperly.viewmodels.UploadImagesViewModel
@@ -29,8 +30,9 @@ fun RegisterNavHost(
     viewModel2: RestaurantTypeViewModel,
     viewModel3: DocumentsUploadViewModel,
     viewModel4: UploadImagesViewModel,
-    viewModel5: MenuViewModel
-){
+    viewModel5: MenuViewModel,
+    viewModel6: RestaurantDashboardViewModel
+    ){
     NavHost(navController = navController, startDestination = "step1"){
         composable("step1") {
             RestaurantRegistrationForm(
@@ -64,6 +66,11 @@ fun RegisterNavHost(
                 viewModel = viewModel5,
                 onNext = { navController.navigate("step6") },
                 onBack = { navController.popBackStack() }
+            )
+        }
+        composable("step6") {
+            RestaurantDashboard(
+                viewModel = viewModel6,
             )
         }
 
