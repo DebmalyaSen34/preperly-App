@@ -129,6 +129,7 @@ fun MenuUploadScreen(
             Button(
                 onClick = {
                     onNext()
+                    Log.d("Next Button","Clicked")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = myRed),
                 modifier = Modifier.weight(1f)

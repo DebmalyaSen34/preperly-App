@@ -24,7 +24,8 @@ class RestaurantTypeViewModel {
     private val timePattern = Pattern.compile("^(1[0-2]|0?[1-9]):[0-5][0-9] (AM|PM)$")
     private val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
-    var errorMessage by mutableStateOf("")
+    var errorMessageNormal by mutableStateOf("")
+    var errorMessageAdv by mutableStateOf("")
 
     val selectedDays = mutableStateListOf<String>()
 
@@ -52,27 +53,39 @@ class RestaurantTypeViewModel {
             val timeSlot = TimeSlot(openTime, closeTime)
 
             if (!isValidTimeFormat(openTime) || !isValidTimeFormat(closeTime)) {
-                errorMessage = "Invalid time format. Please use hh:mm AM/PM format."
+                errorMessageNormal = "Invalid time format. Please use hh:mm AM/PM format."
+                Log.d("error Msg normal",errorMessageNormal)
                 return
             }
 
             if (!isOpenTimeBeforeCloseTime(openTime, closeTime)) {
-                errorMessage = "Open time must be before close time."
+                errorMessageNormal = "Open time must be before close time."
+                Log.d("error Msg normal",errorMessageNormal)
                 return
             }
 
             if (isTimeSlotOverlap(day, timeSlot)) {
-                errorMessage = "Time slot overlaps with an existing slot for $day."
+                errorMessageNormal = "Time slot overlaps with an existing slot for $day."
+                Log.d("currentTimeSlots", "TimeSlots before adding: ${timeSlots[day]}")
+                Log.d("error Msg normal",errorMessageNormal)
+
                 return
             }
-            errorMessage = ""
+
+//            Log.d("currentTimeSlots", "TimeSlots before adding: ${timeSlots[day]}")
+
+            errorMessageNormal = ""
 
             if (timeSlots[day] == null) {
                 timeSlots[day] = mutableSetOf()
             }
-            if (!timeSlots[day]!!.contains(timeSlot)) {
+            if (timeSlots[day]?.contains(timeSlot) != true) {
                 timeSlots[day]?.add(timeSlot)
+                Log.d("currentTimeSlots", "Added new time slot: $timeSlot")
+            }else{
+                Log.d("currentTimeSlots", "Duplicate time slot found, not adding: $timeSlot")
             }
+            Log.d("error Msg normal",errorMessageNormal)
         }
     }
 
@@ -82,29 +95,35 @@ class RestaurantTypeViewModel {
         if(selectedDayAdv != "Select Day"){
 
             if (!isValidTimeFormat(openTimeAdv) || !isValidTimeFormat(closeTimeAdv)) {
-                errorMessage = "Invalid time format. Please use hh:mm AM/PM format."
+                errorMessageAdv = "Invalid time format. Please use hh:mm AM/PM format."
+                Log.d("error Msg Adv",errorMessageAdv)
                 return
             }
 
             if (!isOpenTimeBeforeCloseTime(openTimeAdv, closeTimeAdv)) {
-                errorMessage = "Open time must be before close time."
+                errorMessageAdv = "Open time must be before close time."
+                Log.d("error Msg Adv",errorMessageAdv)
                 return
             }
 
             if (isTimeSlotOverlap(selectedDayAdv, timeSlot)) {
-                errorMessage = "Time slot overlaps with an existing slot for $selectedDayAdv."
+                errorMessageAdv = "Time slot overlaps with an existing slot for $selectedDayAdv."
+                Log.d("error Msg Adv",errorMessageAdv)
                 return
             }
 
-            errorMessage = ""
+
+            errorMessageAdv = ""
+
             if (timeSlots[selectedDayAdv] == null) {
                 timeSlots[selectedDayAdv] = mutableSetOf()
             }
 
-            if (!timeSlots[selectedDayAdv]!!.contains(timeSlot)) {
+            if (timeSlots[selectedDayAdv]?.contains(timeSlot) != true) {
                 timeSlots[selectedDayAdv]?.add(timeSlot)
             }
-            timeSlots[selectedDayAdv]?.add(timeSlot)
+
+            Log.d("error Msg Adv",errorMessageAdv)
         }
     }
 
@@ -144,9 +163,16 @@ class RestaurantTypeViewModel {
         val namePattern = Pattern.compile("^[a-zA-Z\\s'-]{2,50}$")
         if(!namePattern.matcher(name).matches()){
             cuisineTypeError.value = "The length must be 2-50 characters, and can only contain letters, spaces, ', or -."
+            Log.d("error cuisine",cuisineTypeError.value.toString())
         }
-        if(name.isEmpty()){
+        else if(name.isEmpty()){
             cuisineTypeError.value = "The cuisine type cannot be empty"
+            Log.d("error cuisine",cuisineTypeError.value.toString())
         }
+        else{
+            cuisineTypeError.value = null
+            Log.d("error cuisine",cuisineTypeError.value.toString())
+        }
+
     }
 }

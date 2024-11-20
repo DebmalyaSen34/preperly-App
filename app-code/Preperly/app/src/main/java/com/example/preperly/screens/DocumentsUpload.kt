@@ -1,5 +1,7 @@
 package com.example.preperly.screens
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +31,9 @@ fun DocumentsUploadScreen(
     onNext: () -> Unit,
     onBack: () -> Unit
 ) {
+
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -121,8 +127,8 @@ fun DocumentsUploadScreen(
             verticalAlignment = Alignment.CenterVertically){
 
             IconButton(onClick = { /* Handle click */ }){
-                Image(
 
+                Image(
                     painter = painterResource(id = R.drawable.addphotos),
                     contentDescription = "Add images",
                     modifier = Modifier.size(20.dp),
@@ -182,6 +188,8 @@ fun DocumentsUploadScreen(
             Button(
                 onClick = {
                     onNext()
+                    Toast.makeText(context,"Clicked", Toast.LENGTH_SHORT).show()
+                    Log.d("Next Button","Clicked")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = myRed),
                 modifier = Modifier.weight(1f)
