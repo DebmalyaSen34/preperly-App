@@ -2,7 +2,6 @@ package com.example.preperly.screens
 
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,6 +49,8 @@ fun RestaurantTypeAndTimingsScreen(
 
     var isDialogVisible by remember { mutableStateOf(false) }
     val cuisineTypeError by viewModel.cuisineTypeError
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -143,9 +144,9 @@ fun RestaurantTypeAndTimingsScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (viewModel.errorMessage.isNotEmpty()) {
+        if (viewModel.errorMessageNormal.isNotEmpty()) {
             Text(
-                text = viewModel.errorMessage,
+                text = viewModel.errorMessageNormal,
                 color = Color.Red,
                 fontSize = 14.sp,
                 modifier = Modifier.padding(vertical = 8.dp)
@@ -171,11 +172,14 @@ fun RestaurantTypeAndTimingsScreen(
             Button(
                 onClick = {
 
-                    viewModel.saveTimeSlot()
-                    viewModel.readTimeSlot()
-                    if (viewModel.errorMessage.isEmpty() && cuisineTypeError?.isEmpty() == true && viewModel.selectedDays.size >=1) {
-                        onNext()
-                    }
+                    //viewModel.saveTimeSlot()
+//                    if (viewModel.errorMessageAdv.isEmpty() && viewModel.errorMessageNormal.isEmpty() && cuisineTypeError.isNullOrEmpty()) {
+//                        viewModel.readTimeSlot()
+//                        onNext()
+//                    }
+                    onNext()
+                    Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
+                    Log.d("Next Button","Clicked")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = myRed),
                 modifier = Modifier.weight(1f)
@@ -262,7 +266,7 @@ fun TimeSlotDialog(viewModel: RestaurantTypeViewModel, onDismiss: () -> Unit) {
                     onClick =
                     {
                         viewModel.saveAdvTimeSlot()
-                        if (viewModel.errorMessage.isEmpty()){
+                        if (viewModel.errorMessageAdv.isEmpty()){
                             Toast.makeText(context, "Added!", Toast.LENGTH_SHORT).show()
                         }
 
@@ -280,9 +284,9 @@ fun TimeSlotDialog(viewModel: RestaurantTypeViewModel, onDismiss: () -> Unit) {
                     Text("Close", color = Color.White)
                 }
 
-                if (viewModel.errorMessage.isNotEmpty()) {
+                if (viewModel.errorMessageAdv.isNotEmpty()) {
                     Text(
-                        text = viewModel.errorMessage,
+                        text = viewModel.errorMessageAdv,
                         color = Color.Red,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(vertical = 8.dp)
@@ -299,12 +303,11 @@ fun TimeSlotDialog(viewModel: RestaurantTypeViewModel, onDismiss: () -> Unit) {
 fun RestaurantTypePreview() {
     val navController = rememberNavController()
     MaterialTheme {
-//        RestaurantTypeAndTimingsScreen(
-//            viewModel = RestaurantTypeViewModel(),
-//            onNext = {navController.navigate("step3")},
-//            onBack = {navController.popBackStack()}
-//        )
-        TimeSlotDialog(viewModel = RestaurantTypeViewModel()) {
-        }
+        RestaurantTypeAndTimingsScreen(
+            viewModel = RestaurantTypeViewModel(),
+            onNext = {navController.navigate("step3")},
+            onBack = {navController.popBackStack()}
+        )
+
     }
 }

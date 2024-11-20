@@ -1,6 +1,8 @@
 package com.example.preperly.screens
 
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -83,7 +86,7 @@ fun RestaurantRegistrationForm(
 
     val receiveUpdatesOnWhatsApp by viewModel.receiveUpdatesOnWhatsApp
 
-
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
 
     Surface(
@@ -404,6 +407,8 @@ fun RestaurantRegistrationForm(
 //                            onNext()
 //                        }
                         onNext()
+                        Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
+                        Log.d("Next Button","Clicked")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),
                     modifier = Modifier.fillMaxWidth()

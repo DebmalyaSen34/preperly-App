@@ -123,24 +123,30 @@ class RestaurantDetailsViewModel : ViewModel() {
     private fun validateRestaurantName(): Boolean {
         if (restaurantName.value.isBlank()) {
             restaurantNameError.value = "Restaurant name cannot be empty"
+            Log.d("ResNameError",restaurantNameError.value.toString())
             return false
         } else if (!isValidName(restaurantName.value)) {
             restaurantNameError.value = "Name must be 2-50 characters, and can only contain letters, spaces, ', or -."
+            Log.d("ResNameError",restaurantNameError.value.toString())
             return false
         }
-        restaurantNameError.value = ""
+        restaurantNameError.value = null
+        Log.d("ResNameError",restaurantNameError.value.toString())
         return true
     }
 
     private fun validateRestaurantAddress(): Boolean {
         if (restaurantAddress.value.isBlank()) {
             restaurantAddressError.value = "Restaurant address cannot be empty"
+            Log.d("ResAddError",restaurantAddressError.value.toString())
             return false
         } else if(!isValidAddress(restaurantAddress.value)) {
             restaurantAddressError.value = "Address must be 5-100 characters, and can only contain letters, numbers, spaces, ,, ., or -."
+            Log.d("ResAddError",restaurantAddressError.value.toString())
             return false
         }
-        restaurantAddressError.value = ""
+        restaurantAddressError.value = null
+        Log.d("ResAddError",restaurantAddressError.value.toString())
         return true
     }
 

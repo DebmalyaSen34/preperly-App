@@ -3,6 +3,8 @@ package com.example.preperly.screens
 import android.Manifest
 import android.net.Uri
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
@@ -34,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,6 +53,7 @@ fun UploadImagesScreen(
     onNext: () -> Unit,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val restaurantImagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
@@ -117,6 +121,8 @@ fun UploadImagesScreen(
             Button(
                 onClick = {
                     onNext()
+                    Toast.makeText(context,"Clicked", Toast.LENGTH_SHORT).show()
+                    Log.d("Next Button","Clicked")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = myRed),
                 modifier = Modifier.weight(1f)
