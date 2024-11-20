@@ -31,24 +31,20 @@ data class MenuItem(
 
 @Composable
 fun RestaurantDashboard(
-    viewModel: RestaurantDashboardViewModel,
-    onAddPhotos: () -> Unit,
-    onEditPhotos: () -> Unit,
-    onViewPhotos: () -> Unit,
-    onEditMenuItem: (String) -> Unit,
-    onScanQR: () -> Unit,
-    onNavigate: (String) -> Unit
+    viewModel: RestaurantDashboardViewModel
 ) {
+    viewModel.initialItems()
+
     Scaffold(
         topBar = { DashboardTopBar(
             isOnline = viewModel.isOnline,
             hasNotifications = viewModel.hasNotifications,
             onToggleOnline = viewModel::toggleOnlineStatus
         ) },
-        bottomBar = { DashboardBottomNav(onNavigate = onNavigate) },
+        bottomBar = { DashboardBottomNav(onNavigate = {}) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onScanQR,
+                onClick = {},
                 containerColor = Color(0xFFB71C1C)
             ) {
                 Icon(
@@ -82,19 +78,19 @@ fun RestaurantDashboard(
                     PhotoButton(
                         icon = Icons.Default.Add,
                         text = "Add photos",
-                        onClick = onAddPhotos,
+                        onClick = {},
                         modifier = Modifier.weight(1f)
                     )
                     PhotoButton(
                         icon = Icons.Default.Edit,
                         text = "Edit photos",
-                        onClick = onEditPhotos,
+                        onClick = {},
                         modifier = Modifier.weight(1f)
                     )
                     PhotoButton(
                         icon = Icons.Default.Add,
                         text = "View photos",
-                        onClick = onViewPhotos,
+                        onClick = {},
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -112,7 +108,7 @@ fun RestaurantDashboard(
             items(viewModel.menuItems) { menuItem ->
                 MenuItemCard(
                     item = menuItem,
-                    onEditClick = { onEditMenuItem(menuItem.id) },
+                    onEditClick = {  },
                     onToggleAvailability = { viewModel.toggleAvailability(menuItem.id) }
                 )
             }
@@ -321,13 +317,7 @@ fun RestaurantDashboardPreview() {
 
     MaterialTheme {
         RestaurantDashboard(
-            viewModel = sampleViewModel,
-            onAddPhotos = {},
-            onEditPhotos = {},
-            onViewPhotos = {},
-            onEditMenuItem = {},
-            onScanQR = {},
-            onNavigate = {}
+            viewModel = sampleViewModel
         )
     }
 }
