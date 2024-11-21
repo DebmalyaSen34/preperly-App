@@ -10,6 +10,8 @@ import com.example.preperly.RetrofitInstance
 import com.example.preperly.datamodels.User
 import com.example.preperly.datamodels.UserResponse
 import androidx.lifecycle.viewModelScope
+import com.example.preperly.datamodels.OTPRequest
+import com.example.preperly.datamodels.OTPResponse
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -85,6 +87,7 @@ class RestaurantDetailsViewModel : ViewModel() {
 
     fun updatePhoneNumber(newValue: String) {
         phoneNumber.value = newValue
+        validatePhoneNumber()
     }
 
     fun updateAlternateNumber(newValue: String) {
@@ -93,6 +96,7 @@ class RestaurantDetailsViewModel : ViewModel() {
 
     fun updateEmail(newValue: String) {
         email.value = newValue
+        validateEmail()
     }
 
     fun updatePassword(newValue: String) {
@@ -151,13 +155,16 @@ class RestaurantDetailsViewModel : ViewModel() {
     }
 
     private fun validatePhoneNumber(): Boolean {
-        return if (phoneNumber.value.isBlank() || (phoneNumber.value.length < 10) && !phoneNumber.value.all { it.isDigit() }) {
+        if (phoneNumber.value.isBlank() || (phoneNumber.value.length < 10) ) {
             phoneNumberError.value = "Phone number must be at least 10 digits"
-            false
-        } else {
-            phoneNumberError.value = null
-            true
+            return false
+        } else if(!phoneNumber.value.all { it.isDigit() }){
+            phoneNumberError.value = "Phone number should include only numbers"
+            return false
         }
+        phoneNumberError.value = null
+        return true
+
     }
 
     fun validateAlternatePhone(): Boolean {
@@ -300,16 +307,40 @@ class RestaurantDetailsViewModel : ViewModel() {
         }
     }
 
+    fun sendOtp(){
+        val otpRequest = OTPRequest(phoneNumber.value)
+        RetrofitInstance.otpApi.sendOtp(otpRequest).enqueue(object : Callback<OTPResponse>{
+            override fun onResponse(call: Call<OTPResponse>, response: Response<OTPResponse>) {
+                if(response.isSuccessful){
+                    val otpResponse = response.body()
+                    if(otpResponse?.status == 200){
+                        Log.d("OTPResponse", "Success: ${otpResponse.message}")
+                    }else{
+                        Log.d("OTPResponse", "Error: ${otpResponse?.message}")
+                    }
+                }else{
+                    Log.d("OTPResponse", "Error: ${response.errorBody()?.string()}")
+                }
+
+            }
+
+            override fun onFailure(call: Call<OTPResponse>, t: Throwable) {
+                Log.d("OTPResponse", "Failed to send OTP: ${t.message}")
+            }
+
+        })
+    }
+
     fun validateForm(): Boolean {
         val isResNameValid = validateRestaurantName()
         val isAddressValid = validateRestaurantAddress()
-        val isResPhoneValid = validatePhoneNumber()
-        val isEmailValid = validateEmail()
+//        val isResPhoneValid = validatePhoneNumber()
+//        val isEmailValid = validateEmail()
         val isPasswordValid = validatePassword()
         val isConfirmPasswordValid = validateConfirmPassword()
         val isOwnerNameValid = validateOwnerName()
         val isOwnerPhoneValid = validateOwnerPhone()
 
-        return isResNameValid && isAddressValid && isResPhoneValid && isEmailValid && isPasswordValid && isConfirmPasswordValid && isOwnerPhoneValid && isOwnerNameValid
+        return isResNameValid && isAddressValid && isPasswordValid && isConfirmPasswordValid && isOwnerPhoneValid && isOwnerNameValid
     }
 }
