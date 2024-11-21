@@ -167,10 +167,10 @@ private fun PhotoButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
     Button(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxHeight(),
+        modifier.height(120.dp),
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFB71C1C)
@@ -241,22 +241,20 @@ private fun MenuItemCard(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                TextButton(onClick = onEditClick) {
+                TextButton(onClick = onEditClick,) {
                     Text(
                         "Edit",
-                        color = Color(0xFFB71C1C)
+                        color = Color(0xFFB71C1C),
+
+
                     )
                 }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Switch(
-                        checked = item.isAvailable,
-                        onCheckedChange = { onToggleAvailability() }
-                    )
-                    Text("Available")
-                }
+                Switch(
+                    checked = item.isAvailable,
+                    onCheckedChange = { onToggleAvailability() },
+
+                )
+                Text("Available")
             }
         }
     }
@@ -274,7 +272,7 @@ private fun DashboardBottomNav(onNavigate: (String) -> Unit) {
         NavigationBarItem(
             icon = { Icon(Icons.Default.Build, "Dashboard") },
             label = { Text("Dashboard") },
-            selected = true,
+            selected = false,
             onClick = { onNavigate("dashboard") }
         )
         NavigationBarItem(
