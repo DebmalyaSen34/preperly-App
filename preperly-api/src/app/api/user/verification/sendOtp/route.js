@@ -6,22 +6,9 @@ import otpGenerator from "otp-generator";
 // Function to handle OTP generation and sending
 export async function POST(request){
     
-    let phoneNumber;
+    // Extract the mobile number from the request body
+    const { mobileNumber } = await request.json();
     
-    // Parse the phone number from the request body
-    try {
-        const body = await request.json();
-        console.log(body);
-        phoneNumber = body.phoneNumber;
-    } catch (error) {
-        return NextResponse.json({ message: "Invalid request body" }, {status: 400});
-    }
-
-    // Check if the phone number is provided
-    if(!phoneNumber){
-        return NextResponse.json({ message: "Phone number is required" }), {status: 400};
-    }
-
     // Generate a 6-digit OTP
     const otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
@@ -30,57 +17,57 @@ export async function POST(request){
         specialChars: false,
     });
 
-    // Retrieve Fast2SMS API key and URL from environment variables
+    // Fast2SMS API key and URL from environment variables
     const api_key = process.env.FAST2SMS_API_KEY;
     const api_url = process.env.FAST2SMS_API_URL;
 
-    // Set up the headers for the API request
+    // Headers for the Fast2SMS API request
     const headers = {
         "authorization": api_key,
         "Content-Type": "application/json"
     };
 
-    // Create the body for the API request
+    // Body for the Fast2SMS API request
     const body = JSON.stringify({
         authorization: api_key,
         route: "otp",
         sender_id: "TXTIND",  // Sender ID, can be customized from Fast2SMS dashboard
         variables_values: otp, // The OTP to be sent
         language: "english",
-        numbers: phoneNumber // The phone number where the OTP should be sent
+        numbers: mobileNumber // The phone number where the OTP should be sent
     });
 
     try {
-        // Send OTP via Fast2SMS API
+        // Send the OTP using the Fast2SMS API
         const response = await fetch(api_url, {
             method: "POST",
             headers,
             body
         });
 
-        // Parse the response from the API
+
+        // Parse the response from the Fast2SMS API
         const data = await response.json();
 
-        // Check if the response is successful
-        if(response.ok){
-            // Connect to the database
-            await connectToDatabase();
 
-            // Save the OTP and phone number to the database
+        // Check if the OTP was sent successfully
+        if (response.ok) {
+
+            await connectToDatabase();
+            
             await OTP.create({
-                phoneNumber,
-                otp,
+                phoneNumber: mobileNumber,
+                otp: otp,
             });
 
-            // Return a success response
-            return NextResponse.json({ message: "OTP sent successfully" }, {status: 200});
-        }else{
-            // Resturn an error response if the API call failed
-            return NextResponse.error({ message: data.message });
+            return NextResponse.json({ message: 'OTP sent successfully', data });
+        } else {
+            console.error('Failed to send OTP:', data);
+            return NextResponse.json({ error: 'Failed to send OTP', data }, { status: 500 });
         }
     } catch (error) {
-        // Log in the error and return an error response
-        console.error('Error sending OTP!', error);
-        return NextResponse.json({ message: "An error occurred while sending OTP" }, {status: 500});
+        // Handle any errors that occurred during the OTP sending process
+        console.error('Error sending OTP:', error);
+        return NextResponse.json({ error: 'Error sending OTP' }, { status: 500 });
     }
 }

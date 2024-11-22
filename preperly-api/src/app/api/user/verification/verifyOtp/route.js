@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import connectToDatabase from "@/lib/mongodb";
+import connectToDatabase from "@/utils/db";
 import OTP from "@/models/otp";
 
 export async function verifyOtp(request) {
