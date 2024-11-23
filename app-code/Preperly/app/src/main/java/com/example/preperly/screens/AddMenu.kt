@@ -32,7 +32,7 @@ import com.example.preperly.datamodels.Category
 import com.example.preperly.datamodels.MenuItem
 import com.example.preperly.ui.theme.myRed
 import com.example.preperly.viewmodels.MenuViewModel
-import com.example.preperly.viewmodels.UploadImagesViewModel
+
 
 @Composable
 fun MenuUploadScreen(
@@ -45,95 +45,97 @@ fun MenuUploadScreen(
     var showAddCategoryDialog by remember { mutableStateOf(false) }
     var selectedCategoryForSubCategory by remember { mutableStateOf<Category?>(null) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 50.dp, start = 20.dp, end = 20.dp, bottom = 20.dp)
-    ) {
-        ProgressIndicator(currentStep = viewModel.currentStep)
+    // LazyColumn should handle the scrolling of menu items
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                "Menu Upload",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 16.dp)
-            )
-            TextButton(
-                onClick = { showAddCategoryDialog = true },
-                colors = ButtonDefaults.textButtonColors(contentColor = myRed)
+    LazyColumn(modifier = Modifier
+        .fillMaxSize()
+        .padding(top = 50.dp, start = 20.dp, end = 20.dp, bottom = 20.dp)
+    ) {
+        item{
+            ProgressIndicator(currentStep = viewModel.currentStep)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Add Category")
+                Text(
+                    "Menu Upload",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+                TextButton(
+                    onClick = { showAddCategoryDialog = true },
+                    colors = ButtonDefaults.textButtonColors(contentColor = myRed)
+                ) {
+                    Text("Add Category")
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Category",
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+            }
+        }
+        items(viewModel.categories) { category ->
+            CategoryItem(
+                category = category,
+                onAddSubCategory = { selectedCategoryForSubCategory = category }
+            )
+        }
+
+        // Add Items in the list (inside LazyColumn for scroll)
+        items(viewModel.menuItems) { item ->
+            MenuItemCard(
+                item = item,
+                onEdit = { editingItem = item }
+            )
+        }
+
+        item{
+            TextButton(
+                onClick = { showAddItemDialog = true },
+                colors = ButtonDefaults.textButtonColors(contentColor = myRed),
+                modifier = Modifier.padding(vertical = 16.dp)
+            ) {
+                Text("Add Item")
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Add Category",
+                    contentDescription = "Add Item",
                     modifier = Modifier.padding(start = 4.dp)
                 )
             }
         }
-
-        // Add Item Button
-
-        // LazyColumn should handle the scrolling of menu items
-        LazyColumn {
-            items(viewModel.categories) { category ->
-                CategoryItem(
-                    category = category,
-                    onAddSubCategory = { selectedCategoryForSubCategory = category }
-                )
-            }
-
-            // Add Items in the list (inside LazyColumn for scroll)
-            items(viewModel.menuItems) { item ->
-                MenuItemCard(
-                    item = item,
-                    onEdit = { editingItem = item }
-                )
-            }
-        }
-
-        TextButton(
-            onClick = { showAddItemDialog = true },
-            colors = ButtonDefaults.textButtonColors(contentColor = myRed),
-            modifier = Modifier.padding(vertical = 16.dp)
-        ) {
-            Text("Add Item")
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add Item",
-                modifier = Modifier.padding(start = 4.dp)
-            )
-        }
-
-        // Navigation Buttons (this is not inside LazyColumn, will stay fixed at the bottom)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            OutlinedButton(
-                onClick = {
-                    onBack()
-                },
-                modifier = Modifier.weight(1f)
+        item{
+            // Navigation Buttons (this is not inside LazyColumn, will stay fixed at the bottom)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Back")
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Button(
-                onClick = {
-                    onNext()
-                    Log.d("Next Button","Clicked")
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = myRed),
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Next")
+                OutlinedButton(
+                    onClick = {
+                        onBack()
+                    },
+                    modifier = Modifier.weight(1f)
+                        .padding(bottom = 16.dp)
+                ) {
+                    Text("Back")
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Button(
+                    onClick = {
+                        onNext()
+                        Log.d("Next Button","Clicked")
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = myRed),
+                    modifier = Modifier.weight(1f)
+                        .padding(bottom = 16.dp)
+                ) {
+                    Text("Next")
+                }
             }
         }
     }
