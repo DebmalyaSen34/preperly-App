@@ -176,7 +176,10 @@ fun RestaurantRegistrationForm(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Button(
-                        onClick = { /* Phone number verification logic */ },
+                        onClick =
+                        {
+                        viewModel.sendOtp()
+                        },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = myRed),
                         modifier = Modifier.align(Alignment.Bottom)
@@ -201,7 +204,9 @@ fun RestaurantRegistrationForm(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
-                        onClick = { },
+                        onClick = {
+                            viewModel.verifyOtp(phoneOtp)
+                        },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = myRed),
                         modifier = Modifier.align(Alignment.Bottom)
