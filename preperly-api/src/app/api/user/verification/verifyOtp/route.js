@@ -2,19 +2,18 @@ import { NextResponse } from "next/server";
 import connectToDatabase from "@/utils/db";
 import OTP from "@/models/otp";
 
-export async function verifyOtp(request) {
-    let phoneNumber, userOtp;
+export async function POST(request) {
 
-    try {
-        const body = await request.json();
-        phoneNumber = body.phoneNumber;
-        userOtp = body.otp;
-    } catch (error) {
-        return NextResponse.json({ message: "Invalid request body" }, { status: 400 });
+    // Parsing the data from body
+    const { mobileNumber, userOtp } = await request.json();
+
+    // Check if the phone number and OTP are provided
+    if(!mobileNumber || !userOtp){
+        return NextResponse.json({ message: "Phone number and OTP are required" }, { status: 400 });
     }
 
     // Validate input
-    if (!/^\d{10}$/.test(phoneNumber)) {
+    if (!/^\d{10}$/.test(mobileNumber)) {
         return NextResponse.json({ message: "Invalid phone number format" }, { status: 400 });
     }
     if (!/^\d{6}$/.test(userOtp)) {
@@ -25,7 +24,7 @@ export async function verifyOtp(request) {
         await connectToDatabase();
 
         // Fetch the OTP record
-        const record = await OTP.findOne({ phoneNumber });
+        const record = await OTP.findOne({ phoneNumber: mobileNumber });
 
         if (!record) {
             return NextResponse.json({ message: "Invalid OTP" }, { status: 401 });
@@ -33,17 +32,17 @@ export async function verifyOtp(request) {
 
         const isExpired = new Date() - new Date(record.createdAt) > 5 * 60 * 1000; // 5 minutes
         if (isExpired) {
-            await OTP.deleteOne({ phoneNumber }); // Clean up expired OTP
+            await OTP.deleteOne({ phoneNumber: mobileNumber }); // Clean up expired OTP
             return NextResponse.json({ message: "OTP expired" }, { status: 410 });
         }
 
         if (record.otp === userOtp) {
             // OTP verified successfully
-            await OTP.deleteOne({ phoneNumber }); // Remove OTP after successful verification
+            await OTP.deleteOne({ phoneNumber: mobileNumber }); // Remove OTP after successful verification
             return NextResponse.json({ message: "OTP verified successfully" }, { status: 200 });
         } else {
             // Increment failed attempts
-            await OTP.updateOne({ phoneNumber }, { $inc: { attempts: 1 } });
+            await OTP.updateOne({ phoneNumber: mobileNumber }, { $inc: { attempts: 1 } });
             return NextResponse.json({ message: "Invalid OTP" }, { status: 401 });
         }
     } catch (error) {
