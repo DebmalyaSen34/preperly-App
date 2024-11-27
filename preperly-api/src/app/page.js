@@ -105,20 +105,6 @@ export default function Component() {
           </motion.button>
         </motion.div>
       </main>
-
-      <footer className="container mx-auto px-4 py-8 mt-16 border-t border-gray-800">
-        <div className="flex justify-between items-center">
-          <p className="text-gray-500">&copy; 2023 Preperly. All rights reserved.</p>
-          <div className="space-x-4">
-            <a href="#" className="text-gray-500 hover:text-blue-400 transition-colors">
-              Terms
-            </a>
-            <a href="#" className="text-gray-500 hover:text-blue-400 transition-colors">
-              Privacy
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }
