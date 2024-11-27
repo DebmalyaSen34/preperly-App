@@ -3,9 +3,16 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronRight, Code, Zap, Shield } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function Component() {
   const [mounted, setMounted] = useState(false)
+
+  const router = useRouter()
+
+  const handleRedirect = (url) => {
+    router.push(url)
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -56,6 +63,7 @@ export default function Component() {
             Discover and integrate powerful APIs to supercharge your applications
           </p>
           <motion.button
+            onClick={() => handleRedirect('/getApis')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full inline-flex items-center"
@@ -96,6 +104,7 @@ export default function Component() {
             Explore our comprehensive API documentation and start building today!
           </p>
           <motion.button
+          onClick={() => handleRedirect('/getApis')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full inline-flex items-center"
