@@ -178,7 +178,7 @@ fun RestaurantRegistrationForm(
                     Button(
                         onClick =
                         {
-                        viewModel.sendOtp()
+//                        viewModel.sendOtp()
                         },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = myRed),
@@ -205,7 +205,7 @@ fun RestaurantRegistrationForm(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
-                            viewModel.verifyOtp(phoneOtp)
+//                            viewModel.verifyOtp(phoneOtp)
                         },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = myRed),

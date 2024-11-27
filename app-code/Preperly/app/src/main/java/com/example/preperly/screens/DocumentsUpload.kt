@@ -1,12 +1,16 @@
 package com.example.preperly.screens
 
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,6 +37,31 @@ fun DocumentsUploadScreen(
 ) {
 
     val context = LocalContext.current
+    val fssaiDocument = remember { mutableStateOf<Uri?>(null) }
+    val gstinDocument = remember { mutableStateOf<Uri?>(null) }
+    val panCardDocument = remember { mutableStateOf<Uri?>(null) }
+
+    val fssaiLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        fssaiDocument.value = uri
+
+        uri.let {
+            Toast.makeText(context, "FSSAI Document Selected: $uri", Toast.LENGTH_SHORT).show()
+        }
+    }
+    val gstinLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        gstinDocument.value = uri
+
+        uri.let {
+            Toast.makeText(context, "GSTIN Document Selected: $uri", Toast.LENGTH_SHORT).show()
+        }
+    }
+    val pandCardLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        panCardDocument.value = uri
+
+        uri.let {
+            Toast.makeText(context, "Pan Card Document Selected: $uri", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -60,7 +89,9 @@ fun DocumentsUploadScreen(
             .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically){
 
-            IconButton(onClick = { /* Handle click */ }){
+            IconButton(onClick = { /* Handle click */
+                fssaiLauncher.launch(arrayOf("application/pdf"))
+            }){
                 Image(
                     painter = painterResource(id = R.drawable.addphotos),
                     contentDescription = "Add images",
@@ -69,8 +100,9 @@ fun DocumentsUploadScreen(
                 )
             }
 
-
-            Text(
+            fssaiDocument.value?.let {
+                UploadSuccess()
+            } ?: Text(
                 "Add FSSAI document*",
                 color = myRed,
                 fontSize = 14.sp,
@@ -78,7 +110,6 @@ fun DocumentsUploadScreen(
                 fontWeight = FontWeight.Bold
             )
         }
-
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -93,7 +124,9 @@ fun DocumentsUploadScreen(
             .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically){
 
-            IconButton(onClick = { /* Handle click */ }){
+            IconButton(onClick = { /* Handle click */
+                gstinLauncher.launch(arrayOf("application/pdf"))
+            }){
                 Image(
                     painter = painterResource(id = R.drawable.addphotos),
                     contentDescription = "Add images",
@@ -102,7 +135,9 @@ fun DocumentsUploadScreen(
                 )
             }
 
-            Text(
+            gstinDocument.value?.let {
+                UploadSuccess()
+            } ?: Text(
                 "Add Latest GSTIN Filed document*",
                 color = myRed,
                 fontSize = 14.sp,
@@ -126,8 +161,9 @@ fun DocumentsUploadScreen(
             .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically){
 
-            IconButton(onClick = { /* Handle click */ }){
-
+            IconButton(onClick = { /* Handle click */
+                pandCardLauncher.launch(arrayOf("application/pdf"))
+            }){
                 Image(
                     painter = painterResource(id = R.drawable.addphotos),
                     contentDescription = "Add images",
@@ -135,7 +171,9 @@ fun DocumentsUploadScreen(
                     colorFilter = ColorFilter.tint(myRed),
                 )
             }
-            Text(
+            panCardDocument.value?.let {
+                UploadSuccess()
+            } ?: Text(
                 "Add Pan card photo*",
                 color = myRed,
                 fontSize = 14.sp,
@@ -197,6 +235,21 @@ fun DocumentsUploadScreen(
                 Text("Next")
             }
         }
+    }
+}
+
+@Composable
+fun UploadSuccess(){
+    Row{
+        Text(
+            "Uploaded Successfully",
+            fontSize = 14.sp,
+            fontStyle = FontStyle.Italic
+        )
+        Image(
+            imageVector = Icons.Default.CheckCircle,
+            contentDescription = "completed",
+            colorFilter = ColorFilter.tint(Color.Green))
     }
 }
 @Preview(showBackground = true)
