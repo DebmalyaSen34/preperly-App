@@ -297,7 +297,6 @@ fun TimeSlotDialog(viewModel: RestaurantTypeViewModel, onDismiss: () -> Unit) {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun RestaurantTypePreview() {
