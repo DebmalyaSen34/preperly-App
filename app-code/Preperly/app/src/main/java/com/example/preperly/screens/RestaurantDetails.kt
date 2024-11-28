@@ -3,6 +3,7 @@ package com.example.preperly.screens
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -33,7 +36,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,6 +65,8 @@ fun RestaurantRegistrationForm(
     val phoneNumberError by viewModel.phoneNumberError
 
     var phoneOtp by remember { mutableStateOf("") }
+    var isRequestingPhoneOtp by viewModel.isRequestingPhoneOtp
+    var phoneOtpStatus by remember { mutableStateOf(false)}
 
     val alternateNumber by viewModel.alternateNumber
     val alternateNumberError by viewModel.alternateNumberError
@@ -178,8 +185,11 @@ fun RestaurantRegistrationForm(
                     Button(
                         onClick =
                         {
-//                        viewModel.sendOtp()
+//                            viewModel.sendOtp()
+//                            Toast.makeText(context,"requesting...",Toast.LENGTH_SHORT).show()
+
                         },
+                        enabled = !isRequestingPhoneOtp,
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = myRed),
                         modifier = Modifier.align(Alignment.Bottom)
@@ -188,13 +198,13 @@ fun RestaurantRegistrationForm(
                     }
                 }
 
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+
                     OutlinedTextField(
                         value = phoneOtp,
                         onValueChange = {phoneOtp = it},
@@ -205,13 +215,29 @@ fun RestaurantRegistrationForm(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
-//                            viewModel.verifyOtp(phoneOtp)
+//                            phoneOtpStatus = viewModel.verifyOtp(phoneOtp)
                         },
+
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = myRed),
                         modifier = Modifier.align(Alignment.Bottom)
                     ) {
-                        Text("Confirm")
+                        if(phoneOtpStatus){
+                            Row{
+                                Text(
+                                    "Success",
+                                    fontSize = 14.sp,
+                                    fontStyle = FontStyle.Italic
+                                )
+                                Image(
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = "completed",
+                                    colorFilter = ColorFilter.tint(Color.Green))
+                            }
+                        }else{
+                            Text("Confirm")
+                        }
+
                     }
                 }
 
@@ -416,7 +442,8 @@ fun RestaurantRegistrationForm(
                         Log.d("Next Button","Clicked")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(30.dp)
                 ) {
                     Text("Next")

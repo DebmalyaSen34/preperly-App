@@ -6,21 +6,20 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitInstance {
-    private const val BASE_URL = "https://preperly-apis.vercel.app/" // Change to your API's base URL
+    private const val BASE_URL =
+        "https://preperly-apis.vercel.app/" // Change to your API's base URL
 
-    val userRegisterApi: UserRegisterApiService by lazy {
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(UserRegisterApiService::class.java)
+    }
+    val userRegisterApi: UserRegisterApiService by lazy {
+        retrofit.create(UserRegisterApiService::class.java)
     }
 
     val otpApi: OTPApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(OTPApiService::class.java)
+        retrofit.create(OTPApiService::class.java)
     }
 }

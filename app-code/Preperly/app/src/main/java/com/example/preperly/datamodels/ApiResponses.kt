@@ -5,7 +5,13 @@ data class UserResponse(
     val status: Int
 )
 
-data class OTPResponse(
+data class SendOTPResponse(
+    val success: Boolean,
     val message: String,
-    val status: Int
+    val data: Any?
+)
+
+data class VerifyOTPResponse(
+    val success: Boolean,
+    val message: String
 )

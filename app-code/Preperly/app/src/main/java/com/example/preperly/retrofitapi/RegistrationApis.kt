@@ -1,9 +1,10 @@
 package com.example.preperly.retrofitapi
 
 import com.example.preperly.datamodels.OTPRequest
-import com.example.preperly.datamodels.OTPResponse
+import com.example.preperly.datamodels.SendOTPResponse
 import com.example.preperly.datamodels.User
 import com.example.preperly.datamodels.UserResponse
+import com.example.preperly.datamodels.VerifyOTPResponse
 import com.example.preperly.datamodels.VerifyRequest
 import retrofit2.Call
 import retrofit2.http.Body
@@ -16,8 +17,8 @@ interface UserRegisterApiService {
 
 interface OTPApiService{
     @POST("/api/user/verification/sendOtp")
-    fun sendOtp(@Body otpRequest: OTPRequest): Call<OTPResponse>
+    fun sendOtp(@Body otpRequest: OTPRequest): Call<SendOTPResponse>
 
     @POST("/api/user/verification/verifyOtp")
-    fun verifyOtp(@Body verifyRequest: VerifyRequest): Call<OTPResponse>
+    fun verifyOtp(@Body verifyRequest: VerifyRequest): Call<VerifyOTPResponse>
 }

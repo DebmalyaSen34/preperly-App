@@ -37,6 +37,8 @@ class RestaurantTypeViewModel {
 
 
     fun readTimeSlot(){
+
+        Log.d("total time",timeSlots.toString())
         timeSlots.forEach { (day, slots) ->
             Log.d("TimeSlots", "Day: $day")
             slots.forEach { slot ->
@@ -111,7 +113,6 @@ class RestaurantTypeViewModel {
                 Log.d("error Msg Adv",errorMessageAdv)
                 return
             }
-
 
             errorMessageAdv = ""
 
