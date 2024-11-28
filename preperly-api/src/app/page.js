@@ -3,9 +3,16 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronRight, Code, Zap, Shield } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function Component() {
   const [mounted, setMounted] = useState(false)
+
+  const router = useRouter()
+
+  const handleRedirect = (url) => {
+    router.push(url)
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -56,6 +63,7 @@ export default function Component() {
             Discover and integrate powerful APIs to supercharge your applications
           </p>
           <motion.button
+            onClick={() => handleRedirect('/getApis')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full inline-flex items-center"
@@ -96,6 +104,7 @@ export default function Component() {
             Explore our comprehensive API documentation and start building today!
           </p>
           <motion.button
+          onClick={() => handleRedirect('/getApis')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full inline-flex items-center"
@@ -105,20 +114,6 @@ export default function Component() {
           </motion.button>
         </motion.div>
       </main>
-
-      <footer className="container mx-auto px-4 py-8 mt-16 border-t border-gray-800">
-        <div className="flex justify-between items-center">
-          <p className="text-gray-500">&copy; 2023 Preperly. All rights reserved.</p>
-          <div className="space-x-4">
-            <a href="#" className="text-gray-500 hover:text-blue-400 transition-colors">
-              Terms
-            </a>
-            <a href="#" className="text-gray-500 hover:text-blue-400 transition-colors">
-              Privacy
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }
