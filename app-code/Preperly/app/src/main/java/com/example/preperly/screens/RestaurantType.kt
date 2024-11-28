@@ -172,12 +172,12 @@ fun RestaurantTypeAndTimingsScreen(
             Button(
                 onClick = {
 
-                    //viewModel.saveTimeSlot()
-//                    if (viewModel.errorMessageAdv.isEmpty() && viewModel.errorMessageNormal.isEmpty() && cuisineTypeError.isNullOrEmpty()) {
-//                        viewModel.readTimeSlot()
-//                        onNext()
-//                    }
-                    onNext()
+                    viewModel.saveTimeSlot()
+                    if (viewModel.errorMessageAdv.isEmpty() && viewModel.errorMessageNormal.isEmpty() && cuisineTypeError.isNullOrEmpty() && viewModel.selectedDays.size > 1) {
+                        viewModel.readTimeSlot()
+                        onNext()
+                    }
+//                    onNext()
                     Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
                     Log.d("Next Button","Clicked")
                 },

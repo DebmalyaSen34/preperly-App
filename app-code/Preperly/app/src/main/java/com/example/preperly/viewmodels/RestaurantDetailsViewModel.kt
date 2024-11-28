@@ -11,8 +11,10 @@ import com.example.preperly.datamodels.User
 import com.example.preperly.datamodels.UserResponse
 import androidx.lifecycle.viewModelScope
 import com.example.preperly.datamodels.OTPRequest
-import com.example.preperly.datamodels.OTPResponse
+import com.example.preperly.datamodels.SendOTPResponse
+import com.example.preperly.datamodels.VerifyOTPResponse
 import com.example.preperly.datamodels.VerifyRequest
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -37,6 +39,9 @@ class RestaurantDetailsViewModel : ViewModel() {
     var phoneNumber = mutableStateOf("")
         private set
     var phoneNumberError = mutableStateOf<String?>(null)
+        private set
+
+    var isRequestingPhoneOtp = mutableStateOf(false)
         private set
 
     var alternateNumber = mutableStateOf("")
@@ -123,6 +128,7 @@ class RestaurantDetailsViewModel : ViewModel() {
     fun updateReceiveUpdatesOnWhatsApp(newValue: Boolean) {
         receiveUpdatesOnWhatsApp.value = newValue
     }
+
 
     // Validation logic for each field
     private fun validateRestaurantName(): Boolean {
@@ -309,51 +315,76 @@ class RestaurantDetailsViewModel : ViewModel() {
     }
 
     fun sendOtp(){
-        val otpRequest = OTPRequest(phoneNumber.value)
-        RetrofitInstance.otpApi.sendOtp(otpRequest).enqueue(object : Callback<OTPResponse>{
-            override fun onResponse(call: Call<OTPResponse>, response: Response<OTPResponse>) {
-                if(response.isSuccessful){
-                    val otpResponse = response.body()
-                    if(otpResponse?.status == 200){
-                        Log.d("OTPResponse", "Success: ${otpResponse.message}")
-                    }else{
-                        Log.d("OTPResponse", "Error: ${otpResponse?.message}")
+
+        Log.d("OTP", "sendOtp called")
+        if (isRequestingPhoneOtp.value) {
+            Log.d("OTPResponse", "Request already in progress.")
+            return
+        }
+        isRequestingPhoneOtp.value = true // Mark as requesting
+
+        viewModelScope.launch {
+            val otpRequest = OTPRequest(phoneNumber.value)
+            RetrofitInstance.otpApi.sendOtp(otpRequest).enqueue(object : Callback<SendOTPResponse> {
+                override fun onResponse(call: Call<SendOTPResponse>, response: Response<SendOTPResponse>) {
+                    isRequestingPhoneOtp.value = false
+                    if (response.isSuccessful) {
+                        val otpResponse = response.body()
+                        if (otpResponse != null) {
+                            if (otpResponse.success) {
+                                Log.d("OTPResponse", "Success: ${otpResponse.message}")
+                                Log.d("OTP Data", "Success: ${otpResponse.data}")
+                            } else {
+                                Log.d("OTPResponse", "Error: ${otpResponse.message}")
+                            }
+                        }
+                    } else {
+                        Log.d("OTPResponse", "Error: ${response.errorBody()?.string()}")
                     }
-                }else{
-                    Log.d("OTPResponse", "Error: ${response.errorBody()?.string()}")
                 }
 
-            }
+                override fun onFailure(call: Call<SendOTPResponse>, t: Throwable) {
+                    isRequestingPhoneOtp.value = false
+                    Log.d("OTPResponse", "Failed to send OTP: ${t.message}")
+                }
+            })
 
-            override fun onFailure(call: Call<OTPResponse>, t: Throwable) {
-                Log.d("OTPResponse", "Failed to send OTP: ${t.message}")
-            }
-
-        })
+            // Start cooldown after sending the OTP request
+            delay(60_000) // 2-minute cooldown
+            isRequestingPhoneOtp.value = false // Allow another request after cooldown
+        }
     }
 
-    fun verifyOtp(otp: String){
+    fun verifyOtp(otp: String) : Boolean{
         val verifyRequest = VerifyRequest(phoneNumber.value,otp)
-
-        RetrofitInstance.otpApi.verifyOtp(verifyRequest).enqueue(object : Callback<OTPResponse>{
-
-            override fun onResponse(call: Call<OTPResponse>, response: Response<OTPResponse>) {
+        var otpStatus = false
+        RetrofitInstance.otpApi.verifyOtp(verifyRequest).enqueue(object : Callback<VerifyOTPResponse>{
+            override fun onResponse(call: Call<VerifyOTPResponse>, response: Response<VerifyOTPResponse>) {
                 if(response.isSuccessful){
                     val verifyResponse = response.body()
-                    if(verifyResponse?.status == 200){
-                        Log.d("VerifyResponse", "Success: ${verifyResponse.message}")
-                    }else{
-                        Log.d("VerifyResponse", "Error: ${verifyResponse?.message}")
+                    if (verifyResponse != null) {
+                        if(verifyResponse.success){
+                            Log.d("VerifyResponse", "Success: ${verifyResponse.message}")
+                            otpStatus = true
+
+                        }else{
+                            Log.d("VerifyResponse", "Error: ${verifyResponse.message}")
+                            otpStatus = false
+                        }
                     }
                 }else{
                     Log.d("VerifyResponse", "Error: ${response.errorBody()?.string()}")
+                    otpStatus = false
                 }
             }
 
-            override fun onFailure(call: Call<OTPResponse>, t: Throwable) {
+            override fun onFailure(call: Call<VerifyOTPResponse>, t: Throwable) {
                 Log.d("VerifyResponse", "Failed to verify OTP: ${t.message}")
+                otpStatus = false
             }
         })
+
+        return otpStatus
     }
 
     fun validateForm(): Boolean {
