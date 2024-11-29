@@ -40,7 +40,8 @@ class RestaurantDetailsViewModel : ViewModel() {
         private set
     var phoneNumberError = mutableStateOf<String?>(null)
         private set
-
+    var phoneOtpStatus = mutableStateOf(false)
+        private set
     var isRequestingPhoneOtp = mutableStateOf(false)
         private set
 
@@ -327,7 +328,10 @@ class RestaurantDetailsViewModel : ViewModel() {
             val otpRequest = OTPRequest(phoneNumber.value)
             RetrofitInstance.otpApi.sendOtp(otpRequest).enqueue(object : Callback<SendOTPResponse> {
                 override fun onResponse(call: Call<SendOTPResponse>, response: Response<SendOTPResponse>) {
+                    Log.d("OTP inside response", "sendOtp called")
                     isRequestingPhoneOtp.value = false
+                    Log.d("OTPRequest", "Sending OTP to: ${phoneNumber.value}")
+                    Log.d("OTPRequestBody", "Request body: $otpRequest") // Implement a toJson method for your OTPRequest class
                     if (response.isSuccessful) {
                         val otpResponse = response.body()
                         if (otpResponse != null) {
@@ -355,36 +359,33 @@ class RestaurantDetailsViewModel : ViewModel() {
         }
     }
 
-    fun verifyOtp(otp: String) : Boolean{
+    fun verifyOtp(otp: String){
         val verifyRequest = VerifyRequest(phoneNumber.value,otp)
-        var otpStatus = false
+
         RetrofitInstance.otpApi.verifyOtp(verifyRequest).enqueue(object : Callback<VerifyOTPResponse>{
             override fun onResponse(call: Call<VerifyOTPResponse>, response: Response<VerifyOTPResponse>) {
                 if(response.isSuccessful){
                     val verifyResponse = response.body()
+                    Log.d("verifyResponse Body",verifyResponse.toString())
                     if (verifyResponse != null) {
                         if(verifyResponse.success){
                             Log.d("VerifyResponse", "Success: ${verifyResponse.message}")
-                            otpStatus = true
+                            phoneOtpStatus.value = true
 
                         }else{
                             Log.d("VerifyResponse", "Error: ${verifyResponse.message}")
-                            otpStatus = false
                         }
                     }
                 }else{
                     Log.d("VerifyResponse", "Error: ${response.errorBody()?.string()}")
-                    otpStatus = false
                 }
             }
 
             override fun onFailure(call: Call<VerifyOTPResponse>, t: Throwable) {
                 Log.d("VerifyResponse", "Failed to verify OTP: ${t.message}")
-                otpStatus = false
             }
         })
 
-        return otpStatus
     }
 
     fun validateForm(): Boolean {

@@ -13,6 +13,6 @@ data class User(
     val receiveUpdatesOnWhatsApp: Boolean
 )
 
-data class OTPRequest(val phoneNumber: String)
+data class OTPRequest(val mobileNumber: String)
 
-data class VerifyRequest(val phoneNumber: String, val otp: String)
+data class VerifyRequest(val mobileNumber: String, val userOtp: String)
