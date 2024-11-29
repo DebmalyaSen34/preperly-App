@@ -65,8 +65,8 @@ fun RestaurantRegistrationForm(
     val phoneNumberError by viewModel.phoneNumberError
 
     var phoneOtp by remember { mutableStateOf("") }
-    var isRequestingPhoneOtp by viewModel.isRequestingPhoneOtp
-    var phoneOtpStatus by remember { mutableStateOf(false)}
+    val isRequestingPhoneOtp by viewModel.isRequestingPhoneOtp
+    val phoneOtpStatus by viewModel.phoneOtpStatus
 
     val alternateNumber by viewModel.alternateNumber
     val alternateNumberError by viewModel.alternateNumberError
@@ -185,8 +185,8 @@ fun RestaurantRegistrationForm(
                     Button(
                         onClick =
                         {
-//                            viewModel.sendOtp()
-//                            Toast.makeText(context,"requesting...",Toast.LENGTH_SHORT).show()
+                            viewModel.sendOtp()
+                            Toast.makeText(context,"requesting...",Toast.LENGTH_SHORT).show()
 
                         },
                         enabled = !isRequestingPhoneOtp,
@@ -215,7 +215,7 @@ fun RestaurantRegistrationForm(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
-//                            phoneOtpStatus = viewModel.verifyOtp(phoneOtp)
+                            viewModel.verifyOtp(phoneOtp)
                         },
 
                         shape = RoundedCornerShape(8.dp),
@@ -223,7 +223,8 @@ fun RestaurantRegistrationForm(
                         modifier = Modifier.align(Alignment.Bottom)
                     ) {
                         if(phoneOtpStatus){
-                            Row{
+                            Toast.makeText(context,"Verified",Toast.LENGTH_SHORT).show()
+                            Row(horizontalArrangement = Arrangement.SpaceBetween){
                                 Text(
                                     "Success",
                                     fontSize = 14.sp,
