@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitInstance {
     private const val BASE_URL =
-        "http://192.168.1.46:3000/" // Change to your API's base URL
+        "https://preperly-apis.vercel.app/" // Change to your API's base URL
 
     private val okHttpClient = OkHttpClient.Builder()
         .retryOnConnectionFailure(false) // Ensure no automatic retries

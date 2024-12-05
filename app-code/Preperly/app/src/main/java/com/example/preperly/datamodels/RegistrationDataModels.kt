@@ -16,3 +16,10 @@ data class User(
 data class OTPRequest(val mobileNumber: String)
 
 data class VerifyRequest(val mobileNumber: String, val userOtp: String)
+
+data class TimeSlot(var openTime: String, var closeTime: String)
+
+data class DayTimeSlots(
+    val day: String,
+    val slots: List<TimeSlot>
+)

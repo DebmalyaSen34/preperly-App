@@ -133,11 +133,12 @@ class RestaurantDetailsViewModel : ViewModel() {
 
     // Validation logic for each field
     private fun validateRestaurantName(): Boolean {
-        if (restaurantName.value.isBlank()) {
-            restaurantNameError.value = "Restaurant name cannot be empty"
-            Log.d("ResNameError",restaurantNameError.value.toString())
-            return false
-        } else if (!isValidName(restaurantName.value)) {
+//        if (restaurantName.value.isBlank()) {
+//            restaurantNameError.value = "Restaurant name cannot be empty"
+//            Log.d("ResNameError",restaurantNameError.value.toString())
+//            return false
+//        }
+        if (!isValidName(restaurantName.value)) {
             restaurantNameError.value = "Name must be 2-50 characters, and can only contain letters, spaces, ', or -."
             Log.d("ResNameError",restaurantNameError.value.toString())
             return false
@@ -148,11 +149,12 @@ class RestaurantDetailsViewModel : ViewModel() {
     }
 
     private fun validateRestaurantAddress(): Boolean {
-        if (restaurantAddress.value.isBlank()) {
-            restaurantAddressError.value = "Restaurant address cannot be empty"
-            Log.d("ResAddError",restaurantAddressError.value.toString())
-            return false
-        } else if(!isValidAddress(restaurantAddress.value)) {
+//        if (restaurantAddress.value.isBlank()) {
+//            restaurantAddressError.value = "Restaurant address cannot be empty"
+//            Log.d("ResAddError",restaurantAddressError.value.toString())
+//            return false
+//        } else
+        if(!isValidAddress(restaurantAddress.value)) {
             restaurantAddressError.value = "Address must be 5-100 characters, and can only contain letters, numbers, spaces, ,, ., or -."
             Log.d("ResAddError",restaurantAddressError.value.toString())
             return false
@@ -226,10 +228,11 @@ class RestaurantDetailsViewModel : ViewModel() {
     }
 
     private fun validateOwnerName(): Boolean {
-        if (ownerName.value.isBlank()) {
-            ownerNameError.value = "Owner name cannot be empty"
-            return false
-        } else if(!isValidName(ownerName.value)) {
+//        if (ownerName.value.isBlank()) {
+//            ownerNameError.value = "Owner name cannot be empty"
+//            return false
+//        } else
+        if(!isValidName(ownerName.value)) {
             ownerNameError.value = "Owner name must be 2-50 characters, and can only contain letters, spaces, ', or -"
             return false
         }
