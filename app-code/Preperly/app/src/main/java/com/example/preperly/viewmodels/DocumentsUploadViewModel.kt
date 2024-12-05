@@ -1,11 +1,19 @@
 package com.example.preperly.viewmodels
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 class DocumentsUploadViewModel {
+
+    var fssaiDocument by mutableStateOf<Uri?>(null)
+
+    var gstinDocument by mutableStateOf<Uri?>(null)
+
+    var panCardDocument by mutableStateOf<Uri?>(null)
 
     var currentStep by mutableIntStateOf(3)
 

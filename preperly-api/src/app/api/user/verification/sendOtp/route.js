@@ -9,7 +9,12 @@ export async function POST(request) {
     try {
         // Extract the mobile number from the request body
         const { mobileNumber } = await request.json();
-        console.log(mobileNumber);
+
+        if(!mobileNumber){
+            return NextResponse.json({message: "Please provide a mobile number or make sure your body has mobileNumber field!"}, {status: 400});
+        }
+
+
 
         // Generate a 6-digit OTP
         const otp = otpGenerator.generate(6, {
