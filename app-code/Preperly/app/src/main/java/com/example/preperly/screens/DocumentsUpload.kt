@@ -37,26 +37,24 @@ fun DocumentsUploadScreen(
 ) {
 
     val context = LocalContext.current
-    val fssaiDocument = remember { mutableStateOf<Uri?>(null) }
-    val gstinDocument = remember { mutableStateOf<Uri?>(null) }
-    val panCardDocument = remember { mutableStateOf<Uri?>(null) }
+
 
     val fssaiLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        fssaiDocument.value = uri
+        viewModel.fssaiDocument = uri
 
         uri.let {
             Toast.makeText(context, "FSSAI Document Selected: $uri", Toast.LENGTH_SHORT).show()
         }
     }
     val gstinLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        gstinDocument.value = uri
+        viewModel.gstinDocument = uri
 
         uri.let {
             Toast.makeText(context, "GSTIN Document Selected: $uri", Toast.LENGTH_SHORT).show()
         }
     }
     val pandCardLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        panCardDocument.value = uri
+        viewModel.panCardDocument = uri
 
         uri.let {
             Toast.makeText(context, "Pan Card Document Selected: $uri", Toast.LENGTH_SHORT).show()
@@ -100,7 +98,7 @@ fun DocumentsUploadScreen(
                 )
             }
 
-            fssaiDocument.value?.let {
+            viewModel.fssaiDocument?.let {
                 UploadSuccess()
             } ?: Text(
                 "Add FSSAI document*",
@@ -135,7 +133,7 @@ fun DocumentsUploadScreen(
                 )
             }
 
-            gstinDocument.value?.let {
+            viewModel.gstinDocument?.let {
                 UploadSuccess()
             } ?: Text(
                 "Add Latest GSTIN Filed document*",
@@ -171,7 +169,7 @@ fun DocumentsUploadScreen(
                     colorFilter = ColorFilter.tint(myRed),
                 )
             }
-            panCardDocument.value?.let {
+            viewModel.panCardDocument?.let {
                 UploadSuccess()
             } ?: Text(
                 "Add Pan card photo*",

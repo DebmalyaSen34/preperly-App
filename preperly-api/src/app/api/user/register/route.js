@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import User from "@/models/user";
 import connectToDatabase from "@/utils/db";
+import bcrypt from "bcrypt";
 
 export async function POST(request){
     try {
@@ -21,6 +22,8 @@ export async function POST(request){
             return NextResponse.json({message: "Please fill in all the fields!"}, {status: 400});
         }
 
+        const hashedPassword = bcrypt.hashSync(password, 10);
+
         await connectToDatabase();
 
         const existingUser = await User.findOne({phoneNumber});
@@ -35,7 +38,7 @@ export async function POST(request){
             phoneNumber,
             alternateNumber,
             email,
-            password,
+            password: hashedPassword,
             ownerName,
             ownerPhoneNumber,
             ownerEmail,
