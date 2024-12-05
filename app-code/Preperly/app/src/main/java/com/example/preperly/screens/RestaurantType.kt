@@ -144,9 +144,9 @@ fun RestaurantTypeAndTimingsScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (viewModel.errorMessageNormal.isNotEmpty()) {
+        if (viewModel.errorMessageNormal.value.isNotEmpty()) {
             Text(
-                text = viewModel.errorMessageNormal,
+                text = viewModel.errorMessageNormal.value,
                 color = Color.Red,
                 fontSize = 14.sp,
                 modifier = Modifier.padding(vertical = 8.dp)
@@ -171,15 +171,13 @@ fun RestaurantTypeAndTimingsScreen(
             Spacer(modifier = Modifier.width(16.dp))
             Button(
                 onClick = {
-
-                    viewModel.saveTimeSlot()
-                    if (viewModel.errorMessageAdv.isEmpty() && viewModel.errorMessageNormal.isEmpty() && cuisineTypeError.isNullOrEmpty() && viewModel.selectedDays.size > 1) {
-                        viewModel.readTimeSlot()
-                        onNext()
-                    }
-//                    onNext()
+//                    viewModel.saveTimeSlot()
+//                    if (viewModel.errorMessageAdv.value.isEmpty() && viewModel.errorMessageNormal.value.isEmpty() && cuisineTypeError.isNullOrEmpty() && viewModel.selectedDays.size > 1) {
+//                        viewModel.readTimeSlot()
+//                        onNext()
+//                    }
+                    onNext()
                     Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
-                    Log.d("Next Button","Clicked")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = myRed),
                 modifier = Modifier.weight(1f)
@@ -265,10 +263,11 @@ fun TimeSlotDialog(viewModel: RestaurantTypeViewModel, onDismiss: () -> Unit) {
                 Button(
                     onClick =
                     {
-                        viewModel.saveAdvTimeSlot()
-                        if (viewModel.errorMessageAdv.isEmpty()){
-                            Toast.makeText(context, "Added!", Toast.LENGTH_SHORT).show()
-                        }
+//                        viewModel.saveAdvTimeSlot()
+//                        if (viewModel.errorMessageAdv.value.isEmpty() && viewModel.selectedDayAdv != "Select Day"){
+//                            Toast.makeText(context, "Added!", Toast.LENGTH_SHORT).show()
+//                            viewModel.readTimeSlot()
+//                        }
 
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed)
@@ -284,9 +283,9 @@ fun TimeSlotDialog(viewModel: RestaurantTypeViewModel, onDismiss: () -> Unit) {
                     Text("Close", color = Color.White)
                 }
 
-                if (viewModel.errorMessageAdv.isNotEmpty()) {
+                if (viewModel.errorMessageAdv.value.isNotEmpty()) {
                     Text(
-                        text = viewModel.errorMessageAdv,
+                        text = viewModel.errorMessageAdv.value,
                         color = Color.Red,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(vertical = 8.dp)
