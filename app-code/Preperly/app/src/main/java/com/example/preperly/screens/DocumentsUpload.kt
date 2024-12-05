@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -21,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,7 +39,6 @@ fun DocumentsUploadScreen(
 ) {
 
     val context = LocalContext.current
-
 
     val fssaiLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         viewModel.fssaiDocument = uri
@@ -80,9 +81,13 @@ fun DocumentsUploadScreen(
             value = viewModel.fssaiLicence,
             onValueChange = { viewModel.updateFssaiLicence(it) },
             label = { Text("FSSAI Licence*") },
+            isError = viewModel.fssaiLicenceError.isNotBlank(),
             placeholder = { Text("Enter Licence ID") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
         )
+        Text(text = viewModel.fssaiLicenceError, color = Color.Red, fontSize = 12.sp)
+
         Row(modifier = Modifier
             .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically){
@@ -116,8 +121,11 @@ fun DocumentsUploadScreen(
             onValueChange = { viewModel.updateGstin(it) },
             label = { Text("GSTIN*") },
             placeholder = { Text("Enter GSTIN ID") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = viewModel.gstinError.isNotBlank()
         )
+        Text(text =viewModel.gstinError, color = Color.Red, fontSize = 12.sp)
+
         Row(modifier = Modifier
             .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically){
@@ -152,8 +160,10 @@ fun DocumentsUploadScreen(
             onValueChange = { viewModel.updatePanCard(it) },
             label = { Text("Pan card*") },
             placeholder = { Text("Pan card number") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = viewModel.panCardError.isNotBlank()
         )
+        Text(text = viewModel.panCardError, color = Color.Red, fontSize = 12.sp)
 
         Row(modifier = Modifier
             .fillMaxWidth(),
@@ -193,16 +203,23 @@ fun DocumentsUploadScreen(
             onValueChange = { viewModel.updateAccountHolderName(it)},
             label = { Text("Account holder's name*") },
             placeholder = { Text("Name") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = viewModel.accountNameError.isNotBlank()
         )
+        Text(text = viewModel.accountNameError, color = Color.Red, fontSize = 12.sp)
+
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = viewModel.accountNumber,
             onValueChange = { viewModel.updateAccountNumber(it) },
             label = { Text("Account Number*") },
             placeholder = { Text("Number") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            isError = viewModel.accountNumberError.isNotBlank()
         )
+
+        Text(text = viewModel.accountNumberError, color = Color.Red, fontSize = 12.sp)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -223,9 +240,10 @@ fun DocumentsUploadScreen(
             Spacer(modifier = Modifier.width(16.dp))
             Button(
                 onClick = {
-                    onNext()
                     Toast.makeText(context,"Clicked", Toast.LENGTH_SHORT).show()
-                    Log.d("Next Button","Clicked")
+                    if(viewModel.validateInputs()){
+                        onNext()
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = myRed),
                 modifier = Modifier.weight(1f)
