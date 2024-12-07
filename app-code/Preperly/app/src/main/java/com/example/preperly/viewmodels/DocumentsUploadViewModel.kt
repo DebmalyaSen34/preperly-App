@@ -1,6 +1,7 @@
 package com.example.preperly.viewmodels
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +40,9 @@ class DocumentsUploadViewModel {
     var accountNumber by mutableStateOf("")
         private set
     var accountNumberError by mutableStateOf("")
+        private set
+
+    var areAllDocumentsPresentError by mutableStateOf("")
         private set
 
     fun updateFssaiLicence(newValue: String) {
@@ -93,7 +97,7 @@ class DocumentsUploadViewModel {
     private fun isValidAccountHolderName(): Boolean {
         val pattern = Regex("^[a-zA-Z\\s.]+$")
 
-        if(pattern.matches(accountHolderName)){
+        if(!pattern.matches(accountHolderName)){
             accountNameError = "Invalid Name format"
             return false
         }
@@ -103,7 +107,7 @@ class DocumentsUploadViewModel {
 
     private fun isValidAccountNumber(): Boolean {
         val pattern = Regex("^\\d{9,18}$")
-        if(pattern.matches(accountNumber)){
+        if(!pattern.matches(accountNumber)){
             accountNumberError = "Invalid Account Number format"
             return false
         }
@@ -120,6 +124,17 @@ class DocumentsUploadViewModel {
         val isValidAccName = isValidAccountHolderName()
 
         return (isValidAccName && isValidAccNum && isValidPan && isValidFssai && isValidGstin)
+    }
+    fun areAllDocumentsPresent() : Boolean{
+
+        Log.d("documents","$panCardDocument $fssaiDocument $gstinDocument")
+
+        if(panCardDocument == null || fssaiDocument == null || gstinDocument == null){
+            areAllDocumentsPresentError = "Please Upload all Documents"
+            return false
+        }
+        areAllDocumentsPresentError = ""
+        return true
     }
 }
 

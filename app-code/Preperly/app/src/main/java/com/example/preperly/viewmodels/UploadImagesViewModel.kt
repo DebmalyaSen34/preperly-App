@@ -19,7 +19,8 @@ class UploadImagesViewModel : ViewModel(){
 
     var currentStep by mutableIntStateOf(4)
 
+    var restaurantLogo by mutableStateOf<List<Uri>>(emptyList())
     var restaurantImages by mutableStateOf<List<Uri>>(emptyList())
-    var foodImages by mutableStateOf<List<Uri>>(emptyList())
+
 
 }
