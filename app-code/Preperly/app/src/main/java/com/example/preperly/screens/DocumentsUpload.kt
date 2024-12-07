@@ -1,7 +1,8 @@
 package com.example.preperly.screens
 
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,9 +21,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,7 +42,7 @@ fun DocumentsUploadScreen(
 ) {
 
     val context = LocalContext.current
-
+    
     val fssaiLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         viewModel.fssaiDocument = uri
 
@@ -86,7 +89,9 @@ fun DocumentsUploadScreen(
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
         )
-        Text(text = viewModel.fssaiLicenceError, color = Color.Red, fontSize = 12.sp)
+        if( viewModel.fssaiLicenceError.isNotBlank()){
+            Text(text = viewModel.fssaiLicenceError, color = Color.Red, fontSize = 12.sp)
+        }
 
         Row(modifier = Modifier
             .fillMaxWidth(),
@@ -103,8 +108,8 @@ fun DocumentsUploadScreen(
                 )
             }
 
-            viewModel.fssaiDocument?.let {
-                UploadSuccess()
+            viewModel.fssaiDocument?.let { fssaiDocument ->
+                UploadSuccess(context,fssaiDocument)
             } ?: Text(
                 "Add FSSAI document*",
                 color = myRed,
@@ -124,7 +129,9 @@ fun DocumentsUploadScreen(
             modifier = Modifier.fillMaxWidth(),
             isError = viewModel.gstinError.isNotBlank()
         )
-        Text(text =viewModel.gstinError, color = Color.Red, fontSize = 12.sp)
+        if(viewModel.gstinError.isNotBlank()){
+            Text(text =viewModel.gstinError, color = Color.Red, fontSize = 12.sp)
+        }
 
         Row(modifier = Modifier
             .fillMaxWidth(),
@@ -141,8 +148,8 @@ fun DocumentsUploadScreen(
                 )
             }
 
-            viewModel.gstinDocument?.let {
-                UploadSuccess()
+            viewModel.gstinDocument?.let { gstinDocument ->
+                UploadSuccess(context, gstinDocument)
             } ?: Text(
                 "Add Latest GSTIN Filed document*",
                 color = myRed,
@@ -163,7 +170,10 @@ fun DocumentsUploadScreen(
             modifier = Modifier.fillMaxWidth(),
             isError = viewModel.panCardError.isNotBlank()
         )
-        Text(text = viewModel.panCardError, color = Color.Red, fontSize = 12.sp)
+        if(viewModel.panCardError.isNotBlank()){
+            Text(text = viewModel.panCardError, color = Color.Red, fontSize = 12.sp)
+        }
+
 
         Row(modifier = Modifier
             .fillMaxWidth(),
@@ -179,8 +189,8 @@ fun DocumentsUploadScreen(
                     colorFilter = ColorFilter.tint(myRed),
                 )
             }
-            viewModel.panCardDocument?.let {
-                UploadSuccess()
+            viewModel.panCardDocument?.let { panCardDocument ->
+                UploadSuccess(context, panCardDocument)
             } ?: Text(
                 "Add Pan card photo*",
                 color = myRed,
@@ -206,7 +216,9 @@ fun DocumentsUploadScreen(
             modifier = Modifier.fillMaxWidth(),
             isError = viewModel.accountNameError.isNotBlank()
         )
-        Text(text = viewModel.accountNameError, color = Color.Red, fontSize = 12.sp)
+        if(viewModel.accountNameError.isNotBlank()){
+            Text(text = viewModel.accountNameError, color = Color.Red, fontSize = 12.sp)
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
@@ -219,7 +231,14 @@ fun DocumentsUploadScreen(
             isError = viewModel.accountNumberError.isNotBlank()
         )
 
-        Text(text = viewModel.accountNumberError, color = Color.Red, fontSize = 12.sp)
+        if(viewModel.accountNumberError.isNotBlank()){
+            Text(text = viewModel.accountNumberError, color = Color.Red, fontSize = 12.sp)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+
+        if(viewModel.areAllDocumentsPresentError.isNotBlank()){
+            Text(text = viewModel.areAllDocumentsPresentError, color = Color.Red, fontSize = 12.sp)
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -241,9 +260,10 @@ fun DocumentsUploadScreen(
             Button(
                 onClick = {
                     Toast.makeText(context,"Clicked", Toast.LENGTH_SHORT).show()
-                    if(viewModel.validateInputs()){
-                        onNext()
-                    }
+//                    if(viewModel.validateInputs() && viewModel.areAllDocumentsPresent()){
+//                        onNext()
+//                    }
+                    onNext()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = myRed),
                 modifier = Modifier.weight(1f)
@@ -255,8 +275,11 @@ fun DocumentsUploadScreen(
 }
 
 @Composable
-fun UploadSuccess(){
-    Row{
+fun UploadSuccess(context: Context, pdfUri: Uri) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ){
         Text(
             "Uploaded Successfully",
             fontSize = 14.sp,
@@ -265,9 +288,36 @@ fun UploadSuccess(){
         Image(
             imageVector = Icons.Default.CheckCircle,
             contentDescription = "completed",
-            colorFilter = ColorFilter.tint(Color.Green))
+            colorFilter = ColorFilter.tint(Color.Green)
+        )
+
+        TextButton(
+            onClick = {openPdf(context,pdfUri)}
+        ){
+            Text(
+                text = "View",
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    color = myRed,
+                    textDecoration = TextDecoration.Underline
+                )
+            )
+        }
     }
 }
+
+fun openPdf(context: Context,pdfUri: Uri) {
+    try{
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(pdfUri,"application/pdf")
+            flags = Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+        context.startActivity(Intent.createChooser(intent,"Open PDF with"))
+    }catch (e: Exception){
+        Toast.makeText(context,"No application available to open PDF",Toast.LENGTH_SHORT).show()
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun DocumentsUploadPreview() {

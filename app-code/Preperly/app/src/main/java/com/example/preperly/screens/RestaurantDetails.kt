@@ -434,11 +434,11 @@ fun RestaurantRegistrationForm(
 
                 Button(
                     onClick = {
-                        if(viewModel.validateForm() && viewModel.validateAlternatePhone() && viewModel.validateOwnerEmail()){
-                            viewModel.registerUser()
-                            onNext()
-                        }
-//                        onNext()
+//                        if(viewModel.validateForm() && viewModel.validateAlternatePhone() && viewModel.validateOwnerEmail()){
+//                            viewModel.registerUser()
+//                            onNext()
+//                        }
+                        onNext()
                         Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),
