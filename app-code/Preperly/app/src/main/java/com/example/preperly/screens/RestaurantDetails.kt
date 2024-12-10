@@ -65,15 +65,9 @@ fun RestaurantRegistrationForm(
     val phoneNumber by viewModel.phoneNumber
     val phoneNumberError by viewModel.phoneNumberError
 
-<<<<<<< HEAD
-    var phoneOtp by remember { mutableStateOf("") }
+    var phoneOtp by rememberSaveable { mutableStateOf("") }
     val isRequestingPhoneOtp by viewModel.isRequestingPhoneOtp
     val phoneOtpStatus by viewModel.phoneOtpStatus
-=======
-    var phoneOtp by rememberSaveable { mutableStateOf("") }
-    var isRequestingPhoneOtp by viewModel.isRequestingPhoneOtp
-    var phoneOtpStatus by rememberSaveable { mutableStateOf(false)}
->>>>>>> origin/main
 
     val alternateNumber by viewModel.alternateNumber
     val alternateNumberError by viewModel.alternateNumberError

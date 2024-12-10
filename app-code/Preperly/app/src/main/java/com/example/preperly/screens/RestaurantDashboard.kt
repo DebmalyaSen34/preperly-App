@@ -9,17 +9,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.preperly.viewmodels.OrderDetailsScreenViewModel
 import com.example.preperly.viewmodels.RestaurantDashboardViewModel
+import com.example.preperly.viewmodels.RestaurantMenuScreenViewModel
 
 @Composable
 fun RestaurantDashboard(
-    viewModel: RestaurantDashboardViewModel
+    viewModel: RestaurantDashboardViewModel,
+    viewModel1: RestaurantMenuScreenViewModel,
+    viewModel2: OrderDetailsScreenViewModel
 ) {
     val navController = rememberNavController()
     Scaffold(
@@ -47,9 +50,11 @@ fun RestaurantDashboard(
             modifier = Modifier.padding(padding)
             ) {
             composable("menu") {
-                RestaurantMenu(viewModel = viewModel)
+                RestaurantMenu(viewModel = viewModel1)
             }
-            composable("orders") {  }
+            composable("orders") {
+                OrdersScreen(viewModel = viewModel2)
+            }
             composable("analytics") {  }
         }
 
@@ -129,38 +134,3 @@ private fun DashboardBottomNav(navController: NavHostController) {
     }
 }
 
-
-@Preview(
-    name = "Restaurant Dashboard",
-    showBackground = true,
-    backgroundColor = 0xFFFFFFFF
-)
-@Composable
-fun RestaurantDashboardPreview() {
-    val sampleViewModel = RestaurantDashboardViewModel().apply {
-        isOnline = true
-        hasNotifications = true
-        menuItems = listOf(
-            MenuItem(
-                id = "1",
-                name = "Margherita Pizza",
-                description = "Classic tomato and mozzarella",
-                imageUrl = "https://example.com/pizza.jpg",
-                isAvailable = true
-            ),
-            MenuItem(
-                id = "2",
-                name = "Caesar Salad",
-                description = "Romaine lettuce with Caesar dressing",
-                imageUrl = "https://example.com/salad.jpg",
-                isAvailable = false
-            )
-        )
-    }
-
-    MaterialTheme {
-        RestaurantDashboard(
-            viewModel = sampleViewModel
-        )
-    }
-}

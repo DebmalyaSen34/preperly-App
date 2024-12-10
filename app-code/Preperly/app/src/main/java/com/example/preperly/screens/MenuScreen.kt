@@ -32,7 +32,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.preperly.viewmodels.RestaurantDashboardViewModel
+import com.example.preperly.viewmodels.RestaurantMenuScreenViewModel
 
 data class MenuItem(
     val id: String,
@@ -43,7 +43,7 @@ data class MenuItem(
 )
 
 @Composable
-fun RestaurantMenu(viewModel: RestaurantDashboardViewModel){
+fun RestaurantMenu(viewModel: RestaurantMenuScreenViewModel){
 
     viewModel.initialItems()
     LazyColumn(

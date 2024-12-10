@@ -22,8 +22,10 @@ import com.example.preperly.screens.RestaurantRegistrationForm
 import com.example.preperly.ui.theme.PreperlyTheme
 import com.example.preperly.viewmodels.DocumentsUploadViewModel
 import com.example.preperly.viewmodels.MenuViewModel
+import com.example.preperly.viewmodels.OrderDetailsScreenViewModel
 import com.example.preperly.viewmodels.RestaurantDashboardViewModel
 import com.example.preperly.viewmodels.RestaurantDetailsViewModel
+import com.example.preperly.viewmodels.RestaurantMenuScreenViewModel
 import com.example.preperly.viewmodels.RestaurantTypeViewModel
 import com.example.preperly.viewmodels.UploadImagesViewModel
 import kotlinx.coroutines.launch
@@ -54,7 +56,9 @@ fun PreperlyNavigation(){
             viewModel3 = DocumentsUploadViewModel(),
             viewModel4 = UploadImagesViewModel(),
             viewModel5 = MenuViewModel(),
-            viewModel6 = RestaurantDashboardViewModel()
+            viewModel6 = RestaurantDashboardViewModel(),
+            viewModel7 = RestaurantMenuScreenViewModel(),
+            viewModel8 = OrderDetailsScreenViewModel()
         )
         }
     }

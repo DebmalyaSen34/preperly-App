@@ -42,28 +42,32 @@ fun DocumentsUploadScreen(
 ) {
 
     val context = LocalContext.current
-    
-    val fssaiLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        viewModel.fssaiDocument = uri
 
-        uri.let {
-            Toast.makeText(context, "FSSAI Document Selected: $uri", Toast.LENGTH_SHORT).show()
-        }
-    }
-    val gstinLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        viewModel.gstinDocument = uri
+    val fssaiLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            viewModel.fssaiDocument = uri
 
-        uri.let {
-            Toast.makeText(context, "GSTIN Document Selected: $uri", Toast.LENGTH_SHORT).show()
+            uri.let {
+                Toast.makeText(context, "FSSAI Document Selected: $uri", Toast.LENGTH_SHORT).show()
+            }
         }
-    }
-    val pandCardLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        viewModel.panCardDocument = uri
+    val gstinLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            viewModel.gstinDocument = uri
 
-        uri.let {
-            Toast.makeText(context, "Pan Card Document Selected: $uri", Toast.LENGTH_SHORT).show()
+            uri.let {
+                Toast.makeText(context, "GSTIN Document Selected: $uri", Toast.LENGTH_SHORT).show()
+            }
         }
-    }
+    val pandCardLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            viewModel.panCardDocument = uri
+
+            uri.let {
+                Toast.makeText(context, "Pan Card Document Selected: $uri", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
 
     Column(
         modifier = Modifier
@@ -89,17 +93,18 @@ fun DocumentsUploadScreen(
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
         )
-        if( viewModel.fssaiLicenceError.isNotBlank()){
+        if (viewModel.fssaiLicenceError.isNotBlank()) {
             Text(text = viewModel.fssaiLicenceError, color = Color.Red, fontSize = 12.sp)
         }
-
-        Row(modifier = Modifier
-            .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
             IconButton(onClick = { /* Handle click */
                 fssaiLauncher.launch(arrayOf("application/pdf"))
-            }){
+            }) {
                 Image(
                     painter = painterResource(id = R.drawable.addphotos),
                     contentDescription = "Add images",
@@ -108,13 +113,9 @@ fun DocumentsUploadScreen(
                 )
             }
 
-<<<<<<< HEAD
             viewModel.fssaiDocument?.let { fssaiDocument ->
-                UploadSuccess(context,fssaiDocument)
-=======
-            viewModel.fssaiDocument?.let {
-                DocumentUploadSuccess()
->>>>>>> origin/main
+                DocumentUploadSuccess(context, fssaiDocument)
+
             } ?: Text(
                 "Add FSSAI document*",
                 color = myRed,
@@ -122,6 +123,7 @@ fun DocumentsUploadScreen(
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Bold
             )
+
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -134,17 +136,19 @@ fun DocumentsUploadScreen(
             modifier = Modifier.fillMaxWidth(),
             isError = viewModel.gstinError.isNotBlank()
         )
-        if(viewModel.gstinError.isNotBlank()){
-            Text(text =viewModel.gstinError, color = Color.Red, fontSize = 12.sp)
+        if (viewModel.gstinError.isNotBlank()) {
+            Text(text = viewModel.gstinError, color = Color.Red, fontSize = 12.sp)
         }
 
-        Row(modifier = Modifier
-            .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
             IconButton(onClick = { /* Handle click */
                 gstinLauncher.launch(arrayOf("application/pdf"))
-            }){
+            }) {
                 Image(
                     painter = painterResource(id = R.drawable.addphotos),
                     contentDescription = "Add images",
@@ -153,13 +157,9 @@ fun DocumentsUploadScreen(
                 )
             }
 
-<<<<<<< HEAD
             viewModel.gstinDocument?.let { gstinDocument ->
-                UploadSuccess(context, gstinDocument)
-=======
-            viewModel.gstinDocument?.let {
-                DocumentUploadSuccess()
->>>>>>> origin/main
+                DocumentUploadSuccess(context, gstinDocument)
+
             } ?: Text(
                 "Add Latest GSTIN Filed document*",
                 color = myRed,
@@ -167,7 +167,6 @@ fun DocumentsUploadScreen(
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Bold
             )
-
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -180,18 +179,20 @@ fun DocumentsUploadScreen(
             modifier = Modifier.fillMaxWidth(),
             isError = viewModel.panCardError.isNotBlank()
         )
-        if(viewModel.panCardError.isNotBlank()){
+        if (viewModel.panCardError.isNotBlank()) {
             Text(text = viewModel.panCardError, color = Color.Red, fontSize = 12.sp)
         }
 
 
-        Row(modifier = Modifier
-            .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
             IconButton(onClick = { /* Handle click */
                 pandCardLauncher.launch(arrayOf("application/pdf"))
-            }){
+            }) {
                 Image(
                     painter = painterResource(id = R.drawable.addphotos),
                     contentDescription = "Add images",
@@ -199,13 +200,10 @@ fun DocumentsUploadScreen(
                     colorFilter = ColorFilter.tint(myRed),
                 )
             }
-<<<<<<< HEAD
+
             viewModel.panCardDocument?.let { panCardDocument ->
-                UploadSuccess(context, panCardDocument)
-=======
-            viewModel.panCardDocument?.let {
-                DocumentUploadSuccess()
->>>>>>> origin/main
+                DocumentUploadSuccess(context, panCardDocument)
+
             } ?: Text(
                 "Add Pan card photo*",
                 color = myRed,
@@ -213,9 +211,7 @@ fun DocumentsUploadScreen(
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Bold
             )
-
         }
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
@@ -225,13 +221,13 @@ fun DocumentsUploadScreen(
         )
         OutlinedTextField(
             value = viewModel.accountHolderName,
-            onValueChange = { viewModel.updateAccountHolderName(it)},
+            onValueChange = { viewModel.updateAccountHolderName(it) },
             label = { Text("Account holder's name*") },
             placeholder = { Text("Name") },
             modifier = Modifier.fillMaxWidth(),
             isError = viewModel.accountNameError.isNotBlank()
         )
-        if(viewModel.accountNameError.isNotBlank()){
+        if (viewModel.accountNameError.isNotBlank()) {
             Text(text = viewModel.accountNameError, color = Color.Red, fontSize = 12.sp)
         }
 
@@ -246,13 +242,17 @@ fun DocumentsUploadScreen(
             isError = viewModel.accountNumberError.isNotBlank()
         )
 
-        if(viewModel.accountNumberError.isNotBlank()){
+        if (viewModel.accountNumberError.isNotBlank()) {
             Text(text = viewModel.accountNumberError, color = Color.Red, fontSize = 12.sp)
         }
         Spacer(modifier = Modifier.height(12.dp))
 
-        if(viewModel.areAllDocumentsPresentError.isNotBlank()){
-            Text(text = viewModel.areAllDocumentsPresentError, color = Color.Red, fontSize = 12.sp)
+        if (viewModel.areAllDocumentsPresentError.isNotBlank()) {
+            Text(
+                text = viewModel.areAllDocumentsPresentError,
+                color = Color.Red,
+                fontSize = 12.sp
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -274,7 +274,7 @@ fun DocumentsUploadScreen(
             Spacer(modifier = Modifier.width(16.dp))
             Button(
                 onClick = {
-                    Toast.makeText(context,"Clicked", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
 //                    if(viewModel.validateInputs() && viewModel.areAllDocumentsPresent()){
 //                        onNext()
 //                    }
@@ -290,16 +290,10 @@ fun DocumentsUploadScreen(
 }
 
 @Composable
-<<<<<<< HEAD
-fun UploadSuccess(context: Context, pdfUri: Uri) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ){
-=======
-fun DocumentUploadSuccess(){
-    Row{
->>>>>>> origin/main
+fun DocumentUploadSuccess(context: Context, pdfUri: Uri) {
+    Row(verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween){
+
         Text(
             "Uploaded Successfully",
             fontSize = 14.sp,
