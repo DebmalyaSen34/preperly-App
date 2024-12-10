@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,9 +65,15 @@ fun RestaurantRegistrationForm(
     val phoneNumber by viewModel.phoneNumber
     val phoneNumberError by viewModel.phoneNumberError
 
+<<<<<<< HEAD
     var phoneOtp by remember { mutableStateOf("") }
     val isRequestingPhoneOtp by viewModel.isRequestingPhoneOtp
     val phoneOtpStatus by viewModel.phoneOtpStatus
+=======
+    var phoneOtp by rememberSaveable { mutableStateOf("") }
+    var isRequestingPhoneOtp by viewModel.isRequestingPhoneOtp
+    var phoneOtpStatus by rememberSaveable { mutableStateOf(false)}
+>>>>>>> origin/main
 
     val alternateNumber by viewModel.alternateNumber
     val alternateNumberError by viewModel.alternateNumberError
@@ -74,7 +81,7 @@ fun RestaurantRegistrationForm(
     val email by viewModel.email
     val emailError by viewModel.emailError
 
-    var emailOtp by remember { mutableStateOf("") }
+    var emailOtp by rememberSaveable { mutableStateOf("") }
 
     val password by viewModel.password
     val passwordError by viewModel.passwordError
