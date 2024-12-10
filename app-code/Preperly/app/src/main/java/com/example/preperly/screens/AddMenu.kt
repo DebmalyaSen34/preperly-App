@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,8 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -119,7 +122,8 @@ fun MenuUploadScreen(
                     onClick = {
                         onBack()
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
                         .padding(bottom = 16.dp)
                 ) {
                     Text("Back")
@@ -131,7 +135,8 @@ fun MenuUploadScreen(
                         Log.d("Next Button","Clicked")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
                         .padding(bottom = 16.dp)
                 ) {
                     Text("Next")
@@ -339,9 +344,11 @@ fun AddEditItemDialog(
     var selectedCategory by remember { mutableStateOf(categories.find { it.name == item?.category }) }
     var selectedSubCategory by remember { mutableStateOf(item?.subCategory ?: "") }
     var imageUri by remember { mutableStateOf(item?.imageUri ?: Uri.EMPTY) }
+    val itemTypeList = listOf("-Select-", "Veg", "Non-Veg","Egg")
 
     var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
     var isSubCategoryDropdownExpanded by remember { mutableStateOf(false) }
+    var isItemTypeDropDownExpanded by remember { mutableStateOf(false) }
 
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -368,9 +375,14 @@ fun AddEditItemDialog(
 
                 TextButton(
                     onClick = { imagePicker.launch("image/*") },
-                    colors = ButtonDefaults.textButtonColors(contentColor = myRed)
+                    colors = ButtonDefaults.textButtonColors(contentColor = myRed),
                 ) {
-                    Text("Add item photo*")
+                    if(imageUri != Uri.EMPTY){
+                        Log.d("ImageUri",imageUri.toString())
+                        PhotoUploadSuccess()
+                    }else {
+                        Text("Add item photo*")
+                    }
                 }
 
                 OutlinedTextField(
@@ -380,12 +392,37 @@ fun AddEditItemDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
-                    value = itemType,
-                    onValueChange = { itemType = it },
-                    label = { Text("Item type*") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                ExposedDropdownMenuBox(
+                    expanded = isItemTypeDropDownExpanded ,
+                    onExpandedChange = {isItemTypeDropDownExpanded = !isItemTypeDropDownExpanded}) {
+
+                    OutlinedTextField(
+                        value = itemType,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Item type*") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isItemTypeDropDownExpanded) },
+                    )
+                    ExposedDropdownMenu(
+                        expanded = isItemTypeDropDownExpanded ,
+                        onDismissRequest = { isItemTypeDropDownExpanded = false }) {
+
+                        itemTypeList.forEach{ item ->
+                            DropdownMenuItem(
+                                text = { Text(item) },
+                                onClick = {
+                                    itemType = item
+                                    isItemTypeDropDownExpanded = false
+                                }
+                            )
+
+                        }
+                    }
+                }
+
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -496,6 +533,21 @@ fun AddEditItemDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun PhotoUploadSuccess(){
+    Row{
+        Text(
+            "Uploaded Successfully",
+            fontSize = 14.sp,
+            fontStyle = FontStyle.Italic
+        )
+        Image(
+            imageVector = Icons.Default.CheckCircle,
+            contentDescription = "completed",
+            colorFilter = ColorFilter.tint(Color.Green))
     }
 }
 

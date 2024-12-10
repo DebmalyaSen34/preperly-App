@@ -99,7 +99,7 @@ fun DocumentsUploadScreen(
             }
 
             viewModel.fssaiDocument?.let {
-                UploadSuccess()
+                DocumentUploadSuccess()
             } ?: Text(
                 "Add FSSAI document*",
                 color = myRed,
@@ -134,7 +134,7 @@ fun DocumentsUploadScreen(
             }
 
             viewModel.gstinDocument?.let {
-                UploadSuccess()
+                DocumentUploadSuccess()
             } ?: Text(
                 "Add Latest GSTIN Filed document*",
                 color = myRed,
@@ -170,7 +170,7 @@ fun DocumentsUploadScreen(
                 )
             }
             viewModel.panCardDocument?.let {
-                UploadSuccess()
+                DocumentUploadSuccess()
             } ?: Text(
                 "Add Pan card photo*",
                 color = myRed,
@@ -237,7 +237,7 @@ fun DocumentsUploadScreen(
 }
 
 @Composable
-fun UploadSuccess(){
+fun DocumentUploadSuccess(){
     Row{
         Text(
             "Uploaded Successfully",
