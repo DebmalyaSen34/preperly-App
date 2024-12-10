@@ -108,8 +108,13 @@ fun DocumentsUploadScreen(
                 )
             }
 
+<<<<<<< HEAD
             viewModel.fssaiDocument?.let { fssaiDocument ->
                 UploadSuccess(context,fssaiDocument)
+=======
+            viewModel.fssaiDocument?.let {
+                DocumentUploadSuccess()
+>>>>>>> origin/main
             } ?: Text(
                 "Add FSSAI document*",
                 color = myRed,
@@ -148,8 +153,13 @@ fun DocumentsUploadScreen(
                 )
             }
 
+<<<<<<< HEAD
             viewModel.gstinDocument?.let { gstinDocument ->
                 UploadSuccess(context, gstinDocument)
+=======
+            viewModel.gstinDocument?.let {
+                DocumentUploadSuccess()
+>>>>>>> origin/main
             } ?: Text(
                 "Add Latest GSTIN Filed document*",
                 color = myRed,
@@ -189,8 +199,13 @@ fun DocumentsUploadScreen(
                     colorFilter = ColorFilter.tint(myRed),
                 )
             }
+<<<<<<< HEAD
             viewModel.panCardDocument?.let { panCardDocument ->
                 UploadSuccess(context, panCardDocument)
+=======
+            viewModel.panCardDocument?.let {
+                DocumentUploadSuccess()
+>>>>>>> origin/main
             } ?: Text(
                 "Add Pan card photo*",
                 color = myRed,
@@ -275,11 +290,16 @@ fun DocumentsUploadScreen(
 }
 
 @Composable
+<<<<<<< HEAD
 fun UploadSuccess(context: Context, pdfUri: Uri) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ){
+=======
+fun DocumentUploadSuccess(){
+    Row{
+>>>>>>> origin/main
         Text(
             "Uploaded Successfully",
             fontSize = 14.sp,
