@@ -217,6 +217,7 @@ fun RestaurantRegistrationForm(
                     Button(
                         onClick = {
                             viewModel.verifyOtp(phoneOtp)
+                            Toast.makeText(context,"Verifying.....",Toast.LENGTH_SHORT).show()
                         },
 
                         shape = RoundedCornerShape(8.dp),

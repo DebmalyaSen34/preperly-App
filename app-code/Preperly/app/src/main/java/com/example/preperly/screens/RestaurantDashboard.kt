@@ -53,7 +53,21 @@ fun RestaurantDashboard(
                 RestaurantMenu(viewModel = viewModel1)
             }
             composable("orders") {
-                OrdersScreen(viewModel = viewModel2)
+                OrdersScreen(
+                    viewModel = viewModel2,
+                    navController = navController
+                    )
+            }
+            composable("orderDetails/{orderId}") { backStackEntry ->
+                val orderId = backStackEntry.arguments?.getString("orderId")
+                orderId?.let { id ->
+                    IndividualOrderDetails(
+                        orderId = id ,
+                        viewModel = viewModel2,
+                        onBack = {navController.popBackStack()}
+                    )
+                }
+
             }
             composable("analytics") {  }
         }

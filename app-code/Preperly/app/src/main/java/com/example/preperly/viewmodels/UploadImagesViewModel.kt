@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
@@ -19,8 +20,17 @@ class UploadImagesViewModel : ViewModel(){
 
     var currentStep by mutableIntStateOf(4)
 
-    var restaurantLogo by mutableStateOf<List<Uri>>(emptyList())
-    var restaurantImages by mutableStateOf<List<Uri>>(emptyList())
+    var restaurantLogo = mutableStateListOf<Uri>()
+    var restaurantImages = mutableStateListOf<Uri>()
+
+    fun onDeleteImage(uri: Uri,whichImage: String){
+
+        if(whichImage == "Logo"){
+            restaurantLogo.remove(uri)
+        }else{
+            restaurantImages.remove(uri)
+        }
+    }
 
 
 }

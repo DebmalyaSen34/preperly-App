@@ -73,13 +73,13 @@ fun UploadImagesScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val restaurantImagePicker = rememberLauncherForActivityResult(
+    val restaurantLogoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
         viewModel.restaurantLogo += uris
     }
 
-    val foodImagePicker = rememberLauncherForActivityResult(
+    val restaurantImagesPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
         viewModel.restaurantImages += uris
@@ -90,8 +90,16 @@ fun UploadImagesScreen(
     if (showViewImagesScreen) {
         ViewImagesScreen(
             onBack = { showViewImagesScreen = false },
-            onReupload = {},
-            onDelete = {},
+            onReupload = { uri,whichImage->
+                if(whichImage == "Logo"){
+                    viewModel.onDeleteImage(uri,"Logo")
+                    restaurantLogoPicker.launch("image/*")
+                }else{
+                    viewModel.onDeleteImage(uri,"RImages")
+                    restaurantImagesPicker.launch("image/*")
+                }
+            },
+            onDelete = {uri,whichImage -> viewModel.onDeleteImage(uri,whichImage) },
             viewModel = viewModel
         )
     }else{
@@ -113,7 +121,7 @@ fun UploadImagesScreen(
             ImageUploadSection(
                 title = "Restaurant Logo*",
                 imageCount = viewModel.restaurantLogo.size,
-                onAddClick = { restaurantImagePicker.launch("image/*") }
+                onAddClick = { restaurantLogoPicker.launch("image/*") }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -121,7 +129,7 @@ fun UploadImagesScreen(
             ImageUploadSection(
                 title = "Restaurant images*",
                 imageCount = viewModel.restaurantImages.size,
-                onAddClick = { foodImagePicker.launch("image/*") }
+                onAddClick = { restaurantImagesPicker.launch("image/*") }
             )
 
             TextButton(
@@ -151,6 +159,11 @@ fun UploadImagesScreen(
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = {
+//                        if(viewModel.restaurantImages.isNotEmpty() && viewModel.restaurantLogo.isNotEmpty()){
+//                            onNext()
+//                        }else{
+//                            Toast.makeText(context,"Please Upload Images...", Toast.LENGTH_SHORT).show()
+//                        }
                         onNext()
                         Toast.makeText(context,"Clicked", Toast.LENGTH_SHORT).show()
                         Log.d("Next Button","Clicked")
@@ -219,8 +232,8 @@ fun ImageUploadSection(
 @Composable
 fun ViewImagesScreen(
     onBack: () -> Unit,
-    onReupload: (Uri) -> Unit,
-    onDelete: (Uri) -> Unit,
+    onReupload: (Uri,String) -> Unit,
+    onDelete: (Uri,String) -> Unit,
     viewModel: UploadImagesViewModel
 ) {
     var isEditMode by remember { mutableStateOf(false) }
@@ -252,7 +265,7 @@ fun ViewImagesScreen(
 
         // Restaurant Logos Section
         Text(
-            text = "Restaurant images",
+            text = "Restaurant Logos",
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(vertical = 8.dp)
         )
@@ -264,6 +277,7 @@ fun ViewImagesScreen(
                     .height(200.dp)
             )
         } else {
+
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -272,8 +286,8 @@ fun ViewImagesScreen(
                     ImageCard(
                         uri = uri,
                         isEditMode = isEditMode,
-                        onDelete = { onDelete(uri) },
-                        onReupload = { onReupload(uri) },
+                        onDelete = { onDelete(uri,"Logo") },
+                        onReupload = { onReupload(uri,"Logo") },
                         modifier = Modifier
                             .width(300.dp)
                             .height(200.dp)
@@ -284,7 +298,7 @@ fun ViewImagesScreen(
 
         // Restaurant Images Section
         Text(
-            text = "Food images",
+            text = "Restaurant Images",
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(vertical = 8.dp)
         )
@@ -306,8 +320,8 @@ fun ViewImagesScreen(
                     ImageCard(
                         uri = uri,
                         isEditMode = isEditMode,
-                        onDelete = { onDelete(uri) },
-                        onReupload = { onReupload(uri) },
+                        onDelete = { onDelete(uri,"RImages") },
+                        onReupload = { onReupload(uri,"RImages") },
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1f)
@@ -338,58 +352,57 @@ fun ImageCard(
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(uri)
-                .crossfade(true)
-                .build(),
-            contentDescription = "Image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(MaterialTheme.shapes.medium)
-                .border(
-                    width = 1.dp,
-                    color = Color.LightGray,
-                    shape = MaterialTheme.shapes.medium
-                )
-        )
 
-        if (isEditMode) {
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(8.dp)
-            ) {
-                IconButton(
-                    onClick = {onDelete(uri)}
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete",
-                        tint = myRed
+        Column(modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            if (isEditMode) {
 
-                    )
+                Row(modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                    ){
+                    IconButton(
+                        onClick = {onDelete(uri)}
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = myRed
+
+                        )
+                    }
+                    IconButton(
+                        onClick = {onReupload(uri)},
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "ReUpload",
+                            tint = myRed
+
+                        )
+                    }
                 }
+
             }
 
-            Row(
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(uri)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "Image",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp)
-            ){
-
-                IconButton(
-                    onClick = {onReupload(uri)},
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = "ReUpload",
-                        tint = myRed
-
+                    .fillMaxSize()
+                    .clip(MaterialTheme.shapes.medium)
+                    .border(
+                        width = 1.dp,
+                        color = Color.LightGray,
+                        shape = MaterialTheme.shapes.medium
                     )
-                }
-            }
+            )
         }
     }
 }
