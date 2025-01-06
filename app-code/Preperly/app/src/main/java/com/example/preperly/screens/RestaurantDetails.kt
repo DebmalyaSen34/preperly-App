@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -96,6 +97,7 @@ fun RestaurantRegistrationForm(
 
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    var showSuccessToast by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -224,8 +226,15 @@ fun RestaurantRegistrationForm(
                         colors = ButtonDefaults.buttonColors(containerColor = myRed),
                         modifier = Modifier.align(Alignment.Bottom)
                     ) {
+
+                        LaunchedEffect(phoneOtpStatus) {
+                            if (phoneOtpStatus && !showSuccessToast) {
+                                showSuccessToast = true
+                                Toast.makeText(context, "Verified", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
                         if(phoneOtpStatus){
-                            Toast.makeText(context,"Verified",Toast.LENGTH_SHORT).show()
                             Row(horizontalArrangement = Arrangement.SpaceBetween){
                                 Text(
                                     "Success",
@@ -240,7 +249,6 @@ fun RestaurantRegistrationForm(
                         }else{
                             Text("Confirm")
                         }
-
                     }
                 }
 
@@ -436,12 +444,12 @@ fun RestaurantRegistrationForm(
 
                 Button(
                     onClick = {
-//                        if(viewModel.validateForm() && viewModel.validateAlternatePhone() && viewModel.validateOwnerEmail()){
+                        if(viewModel.validateForm() && viewModel.validateAlternatePhone() && viewModel.validateOwnerEmail()){
 //                            viewModel.registerUser()
-//                            onNext()
-//                        }
-                        onNext()
-                        Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
+                            onNext()
+                        }
+//                        onNext()
+//                        Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),
                     modifier = Modifier

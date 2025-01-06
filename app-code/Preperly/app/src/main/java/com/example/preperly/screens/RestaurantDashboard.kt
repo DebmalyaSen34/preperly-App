@@ -67,7 +67,6 @@ fun RestaurantDashboard(
                         onBack = {navController.popBackStack()}
                     )
                 }
-
             }
             composable("analytics") {  }
         }
