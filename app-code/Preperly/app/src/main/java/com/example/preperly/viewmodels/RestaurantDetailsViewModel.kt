@@ -288,8 +288,9 @@ class RestaurantDetailsViewModel : ViewModel() {
         return user
     }
 
-    fun registerUser(){
+    fun registerUser() : String{
 
+        var registrationResponse = ""
         viewModelScope.launch {
             val user = createUser()
             Log.d("UserData", user.toString())
@@ -302,20 +303,23 @@ class RestaurantDetailsViewModel : ViewModel() {
 
                         if(userResponse?.status == 200){
                             Log.d("UserResponse",userResponse.message)
+                            registrationResponse = userResponse.message
                         }
                     } else {
                         // Handle error
-                        Log.d("UserResponse", "Error: ${response.errorBody()?.string()}")
-
+                        Log.d("UserResponse", "Error: ${response.message()}")
+                        registrationResponse = response.message()
                     }
                 }
 
                 override fun onFailure(call: Call<UserResponse>, t: Throwable) {
                     // Handle failure
                     Log.d("UserResponse", "No response from API: ${t.message}")
+                    registrationResponse = t.message.toString()
                 }
             })
         }
+        return registrationResponse
     }
 
     fun sendOtp(){

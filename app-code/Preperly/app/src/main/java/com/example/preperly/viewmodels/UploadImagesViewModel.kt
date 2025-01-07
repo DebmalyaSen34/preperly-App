@@ -31,6 +31,4 @@ class UploadImagesViewModel : ViewModel(){
             restaurantImages.remove(uri)
         }
     }
-
-
 }

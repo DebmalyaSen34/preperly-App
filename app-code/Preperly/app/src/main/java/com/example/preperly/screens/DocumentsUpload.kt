@@ -3,6 +3,7 @@ package com.example.preperly.screens
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,7 +33,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.example.preperly.viewmodels.DocumentsUploadViewModel
 import com.example.preperly.R
+import com.example.preperly.datamodels.DocumentData
 import com.example.preperly.ui.theme.myRed
+import java.io.File
 
 @Composable
 fun DocumentsUploadScreen(
@@ -42,26 +45,47 @@ fun DocumentsUploadScreen(
 ) {
 
     val context = LocalContext.current
+    var fssaiUri by remember { mutableStateOf<Uri?>(null) }
+    var gstinUri by remember { mutableStateOf<Uri?>(null) }
+    var panCardUri by remember { mutableStateOf<Uri?>(null) }
+
+    fun getFileFromUri(context: Context, uri: Uri?): File {
+        val contentResolver = context.contentResolver
+        val file = File(context.cacheDir, "tempFile")
+
+        if (uri != null) {
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                file.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+        }
+        return file
+    }
 
     val fssaiLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-            viewModel.fssaiDocument = uri
+            fssaiUri = uri
+            viewModel.fssaiDocument = getFileFromUri(context,uri)
 
             uri.let {
                 Toast.makeText(context, "FSSAI Document Selected: $uri", Toast.LENGTH_SHORT).show()
+                Log.d("fssai doc", viewModel.fssaiDocument!!.path.toString())
             }
         }
     val gstinLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-            viewModel.gstinDocument = uri
+            gstinUri = uri
+            viewModel.gstinDocument = getFileFromUri(context,uri)
 
             uri.let {
                 Toast.makeText(context, "GSTIN Document Selected: $uri", Toast.LENGTH_SHORT).show()
             }
         }
-    val pandCardLauncher =
+    val panCardLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-            viewModel.panCardDocument = uri
+            panCardUri = uri
+            viewModel.panCardDocument =getFileFromUri(context,uri)
 
             uri.let {
                 Toast.makeText(context, "Pan Card Document Selected: $uri", Toast.LENGTH_SHORT)
@@ -113,8 +137,8 @@ fun DocumentsUploadScreen(
                 )
             }
 
-            viewModel.fssaiDocument?.let { fssaiDocument ->
-                DocumentUploadSuccess(context, fssaiDocument)
+            viewModel.fssaiDocument?.let {
+                DocumentUploadSuccess(context, fssaiUri)
 
             } ?: Text(
                 "Add FSSAI document*",
@@ -157,8 +181,8 @@ fun DocumentsUploadScreen(
                 )
             }
 
-            viewModel.gstinDocument?.let { gstinDocument ->
-                DocumentUploadSuccess(context, gstinDocument)
+            viewModel.gstinDocument?.let {
+                DocumentUploadSuccess(context, gstinUri)
 
             } ?: Text(
                 "Add Latest GSTIN Filed document*",
@@ -191,7 +215,7 @@ fun DocumentsUploadScreen(
         ) {
 
             IconButton(onClick = { /* Handle click */
-                pandCardLauncher.launch(arrayOf("application/pdf"))
+                panCardLauncher.launch(arrayOf("application/pdf"))
             }) {
                 Image(
                     painter = painterResource(id = R.drawable.addphotos),
@@ -201,8 +225,8 @@ fun DocumentsUploadScreen(
                 )
             }
 
-            viewModel.panCardDocument?.let { panCardDocument ->
-                DocumentUploadSuccess(context, panCardDocument)
+            viewModel.panCardDocument?.let {
+                DocumentUploadSuccess(context, panCardUri)
 
             } ?: Text(
                 "Add Pan card photo*",
@@ -290,7 +314,7 @@ fun DocumentsUploadScreen(
 }
 
 @Composable
-fun DocumentUploadSuccess(context: Context, pdfUri: Uri) {
+fun DocumentUploadSuccess(context: Context, pdfUri: Uri?) {
     Row(verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween){
 
@@ -306,7 +330,11 @@ fun DocumentUploadSuccess(context: Context, pdfUri: Uri) {
         )
 
         TextButton(
-            onClick = {openPdf(context,pdfUri)}
+            onClick = {
+                if (pdfUri != null) {
+                    openPdf(context,pdfUri)
+                }
+            }
         ){
             Text(
                 text = "View",

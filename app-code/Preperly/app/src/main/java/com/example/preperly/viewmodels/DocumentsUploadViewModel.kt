@@ -6,14 +6,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import java.io.File
 
 class DocumentsUploadViewModel {
 
-    var fssaiDocument by mutableStateOf<Uri?>(null)
+    var fssaiDocument by mutableStateOf<File?>(null)
 
-    var gstinDocument by mutableStateOf<Uri?>(null)
+    var gstinDocument by mutableStateOf<File?>(null)
 
-    var panCardDocument by mutableStateOf<Uri?>(null)
+    var panCardDocument by mutableStateOf<File?>(null)
 
     var currentStep by mutableIntStateOf(3)
 
