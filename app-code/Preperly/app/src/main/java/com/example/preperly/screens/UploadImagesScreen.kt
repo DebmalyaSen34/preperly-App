@@ -159,6 +159,7 @@ fun UploadImagesScreen(
                 Button(
                     onClick = {
                         if(viewModel.restaurantImages.isNotEmpty() && viewModel.restaurantLogo.isNotEmpty()){
+                            viewModel.saveImageFiles(context)
                             onNext()
                         }else{
                             Toast.makeText(context,"Please Upload Images...", Toast.LENGTH_SHORT).show()

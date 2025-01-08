@@ -36,3 +36,8 @@ data class DocumentData(
     val gstinDocument: File,
     val panCardDocument: File
 )
+
+data class UploadedImagesRes(
+    val restaurantLogos: List<File>,
+    val restaurantImages: List<File>
+)

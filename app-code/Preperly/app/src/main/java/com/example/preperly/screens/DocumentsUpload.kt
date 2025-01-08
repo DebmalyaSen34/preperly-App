@@ -299,10 +299,10 @@ fun DocumentsUploadScreen(
             Button(
                 onClick = {
 //                    Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
-                    if(viewModel.validateInputs() && viewModel.areAllDocumentsPresent()){
-                        onNext()
-                    }
-//                    onNext()
+//                    if(viewModel.validateInputs() && viewModel.areAllDocumentsPresent()){
+//                        onNext()
+//                    }
+                    onNext()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = myRed),
                 modifier = Modifier.weight(1f)
