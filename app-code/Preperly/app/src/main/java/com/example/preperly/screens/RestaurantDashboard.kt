@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.preperly.viewmodels.AnalyticsViewModel
 import com.example.preperly.viewmodels.OrderDetailsScreenViewModel
 import com.example.preperly.viewmodels.RestaurantDashboardViewModel
 import com.example.preperly.viewmodels.RestaurantMenuScreenViewModel
@@ -22,7 +23,8 @@ import com.example.preperly.viewmodels.RestaurantMenuScreenViewModel
 fun RestaurantDashboard(
     viewModel: RestaurantDashboardViewModel,
     viewModel1: RestaurantMenuScreenViewModel,
-    viewModel2: OrderDetailsScreenViewModel
+    viewModel2: OrderDetailsScreenViewModel,
+    viewModel3: AnalyticsViewModel
 ) {
     val navController = rememberNavController()
     Scaffold(
@@ -68,7 +70,9 @@ fun RestaurantDashboard(
                     )
                 }
             }
-            composable("analytics") {  }
+            composable("analytics") {
+                AnalyticsDashboardScreen(viewModel = viewModel3)
+            }
         }
 
     }

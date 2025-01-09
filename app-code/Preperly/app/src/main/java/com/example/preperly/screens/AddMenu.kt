@@ -135,11 +135,11 @@ fun MenuUploadScreen(
                 Button(
                     onClick = {
                         onNext()
-                        if(viewModel.menuItems.isNotEmpty()){
-                            onNext()
-                        }else{
-                            Toast.makeText(context,"Please Add your Menu",Toast.LENGTH_SHORT).show()
-                        }
+//                        if(viewModel.menuItems.isNotEmpty()){
+//                            onNext()
+//                        }else{
+//                            Toast.makeText(context,"Please Add your Menu",Toast.LENGTH_SHORT).show()
+//                        }
 //                        Log.d("Next Button","Clicked")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),

@@ -158,15 +158,15 @@ fun UploadImagesScreen(
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = {
-                        if(viewModel.restaurantImages.isNotEmpty() && viewModel.restaurantLogo.isNotEmpty()){
-                            viewModel.saveImageFiles(context)
-                            onNext()
-                        }else{
-                            Toast.makeText(context,"Please Upload Images...", Toast.LENGTH_SHORT).show()
-                        }
-//                        onNext()
-//                        Toast.makeText(context,"Clicked", Toast.LENGTH_SHORT).show()
-//                        Log.d("Next Button","Clicked")
+//                        if(viewModel.restaurantImages.isNotEmpty() && viewModel.restaurantLogo.isNotEmpty()){
+//                            viewModel.saveImageFiles(context)
+//                            onNext()
+//                        }else{
+//                            Toast.makeText(context,"Please Upload Images...", Toast.LENGTH_SHORT).show()
+//                        }
+                        onNext()
+                        Toast.makeText(context,"Clicked", Toast.LENGTH_SHORT).show()
+                        Log.d("Next Button","Clicked")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),
                     modifier = Modifier.weight(1f)

@@ -20,6 +20,7 @@ import com.example.preperly.screens.PreperlyWelcomeScreen
 import com.example.preperly.screens.RegisterNavHost
 import com.example.preperly.screens.RestaurantRegistrationForm
 import com.example.preperly.ui.theme.PreperlyTheme
+import com.example.preperly.viewmodels.AnalyticsViewModel
 import com.example.preperly.viewmodels.DocumentsUploadViewModel
 import com.example.preperly.viewmodels.MenuViewModel
 import com.example.preperly.viewmodels.OrderDetailsScreenViewModel
@@ -58,7 +59,8 @@ fun PreperlyNavigation(){
             viewModel5 = MenuViewModel(),
             viewModel6 = RestaurantDashboardViewModel(),
             viewModel7 = RestaurantMenuScreenViewModel(),
-            viewModel8 = OrderDetailsScreenViewModel()
+            viewModel8 = OrderDetailsScreenViewModel(),
+            viewModel9 = AnalyticsViewModel()
         )
         }
     }
