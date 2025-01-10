@@ -444,11 +444,15 @@ fun RestaurantRegistrationForm(
 
                 Button(
                     onClick = {
-//                        if(viewModel.validateForm() && viewModel.validateAlternatePhone() && viewModel.validateOwnerEmail()){
-//                            val registrationResponse = viewModel.registerUser()
-//                            onNext()
-//                        }
-                        onNext()
+                        if(viewModel.validateForm() && viewModel.validateAlternatePhone() && viewModel.validateOwnerEmail()){
+                            val registrationResponse = viewModel.registerUser()
+                            if(registrationResponse.status == 200){
+                                onNext()
+                            }else{
+                                Toast.makeText(context,registrationResponse.message,Toast.LENGTH_SHORT).show()
+                            }
+                        }
+//                        onNext()
                         Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),

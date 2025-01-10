@@ -288,9 +288,9 @@ class RestaurantDetailsViewModel : ViewModel() {
         return user
     }
 
-    fun registerUser() : String{
+    fun registerUser() : UserResponse{
 
-        var registrationResponse = ""
+        var registrationResponse = UserResponse("",0)
         viewModelScope.launch {
             val user = createUser()
             Log.d("UserData", user.toString())
@@ -300,26 +300,26 @@ class RestaurantDetailsViewModel : ViewModel() {
                         // Handle success
                         val userResponse = response.body()
                         // Update UI or notify success
-
                         if(userResponse?.status == 200){
                             Log.d("UserResponse",userResponse.message)
-                            registrationResponse = userResponse.message
+                            registrationResponse = UserResponse(message = userResponse.message, status = userResponse.status)
                         }
                     } else {
                         // Handle error
                         Log.d("UserResponse", "Error: ${response.message()}")
-                        registrationResponse = response.message()
+                        registrationResponse = UserResponse(message = response.message(), status = response.code())
                     }
                 }
+
 
                 override fun onFailure(call: Call<UserResponse>, t: Throwable) {
                     // Handle failure
                     Log.d("UserResponse", "No response from API: ${t.message}")
-                    registrationResponse = t.message.toString()
+                    registrationResponse = t.message?.let { UserResponse(message = it, status = 500) }!!
                 }
             })
         }
-        return registrationResponse
+        return  registrationResponse
     }
 
     fun sendOtp(){
