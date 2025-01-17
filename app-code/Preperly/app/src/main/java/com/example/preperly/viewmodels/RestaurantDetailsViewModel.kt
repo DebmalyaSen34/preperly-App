@@ -311,7 +311,6 @@ class RestaurantDetailsViewModel : ViewModel() {
                     }
                 }
 
-
                 override fun onFailure(call: Call<UserResponse>, t: Throwable) {
                     // Handle failure
                     Log.d("UserResponse", "No response from API: ${t.message}")
@@ -387,12 +386,10 @@ class RestaurantDetailsViewModel : ViewModel() {
                     Log.d("VerifyResponse", "Error: ${response.errorBody()?.string()}")
                 }
             }
-
             override fun onFailure(call: Call<VerifyOTPResponse>, t: Throwable) {
                 Log.d("VerifyResponse", "Failed to verify OTP: ${t.message}")
             }
         })
-
     }
 
     fun validateForm(): Boolean {

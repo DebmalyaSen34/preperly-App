@@ -9,11 +9,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.preperly.R
 import com.example.preperly.viewmodels.AnalyticsViewModel
 import com.example.preperly.viewmodels.OrderDetailsScreenViewModel
 import com.example.preperly.viewmodels.RestaurantDashboardViewModel
@@ -40,7 +42,7 @@ fun RestaurantDashboard(
                 containerColor = Color(0xFFB71C1C)
             ) {
                 Icon(
-                    imageVector = Icons.Default.DateRange,
+                    painter = painterResource(id = R.drawable.scan_barcode),
                     contentDescription = "Scan QR",
                     tint = Color.White
                 )
@@ -131,19 +133,28 @@ private fun DashboardBottomNav(navController: NavHostController) {
 
     NavigationBar {
         NavigationBarItem(
-            icon = { Icon(Icons.Default.ShoppingCart, "Orders") },
+            icon = {
+                Icon(painter = painterResource(id = R.drawable.bag),
+                    "Orders")
+                   },
             label = { Text("Orders") },
             selected = currentRoute == "orders",
             onClick = { navController.navigate("orders") }
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Default.Build, "Analytics") },
+            icon = { 
+                Icon(painter = painterResource(id = R.drawable.analytics), 
+                "Analytics")
+                   },
             label = { Text("Analytics") },
             selected = currentRoute == "analytics",
             onClick = { navController.navigate("analytics") }
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Default.Email, "Menu") },
+            icon = { 
+                Icon(painter = painterResource(id = R.drawable.menu), 
+                    "Menu")
+                   },
             label = { Text("Menu") },
             selected = currentRoute == "menu",
             onClick = { navController.navigate("menu") }

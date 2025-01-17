@@ -22,7 +22,9 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.TextUnit
+import com.example.preperly.R
 import com.example.preperly.datamodels.RevenueData
 import com.example.preperly.datamodels.TimeFilter
 import com.example.preperly.datamodels.Transaction
@@ -94,21 +96,21 @@ fun AnalyticsDashboardScreen(viewModel: AnalyticsViewModel) {
                 StatsCard(
                     title = "Orders",
                     value = viewModel.orders.toString(),
-                    icon = Icons.Default.ShoppingCart,
+                    imageId = R.drawable.cart,
                     backgroundColor = Color(0xFFE53935),
                     modifier = Modifier.weight(1f)
                 )
                 StatsCard(
                     title = "Revenue",
                     value = "${viewModel.revenue}k",
-                    icon = Icons.Default.Star,
+                    imageId = R.drawable.rupee2,
                     backgroundColor = Color(0xFF4285F4),
                     modifier = Modifier.weight(1f)
                 )
                 StatsCard(
                     title = "Items",
                     value = viewModel.items.toString(),
-                    icon = Icons.Default.Build,
+                    imageId = R.drawable.order_box,
                     backgroundColor = Color(0xFF4CAF50),
                     modifier = Modifier.weight(1f)
                 )
@@ -161,7 +163,7 @@ fun AnalyticsDashboardScreen(viewModel: AnalyticsViewModel) {
 fun StatsCard(
     title: String,
     value: String,
-    icon: ImageVector,
+    imageId: Int,
     backgroundColor: Color,
     modifier: Modifier = Modifier
 ) {
@@ -187,11 +189,11 @@ fun StatsCard(
                 Text(
                     value,
                     color = Color.White,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
                 )
                 Icon(
-                    icon,
+                    painter = painterResource(id = imageId),
                     contentDescription = title,
                     tint = Color.White
                 )
@@ -333,7 +335,7 @@ fun TransactionRow(transaction: Transaction) {
             )
         }
         Text(
-            "+$${transaction.amount}",
+            "+${transaction.amount}/-",
             color = Color(0xFF4CAF50),
             style = MaterialTheme.typography.titleMedium
         )

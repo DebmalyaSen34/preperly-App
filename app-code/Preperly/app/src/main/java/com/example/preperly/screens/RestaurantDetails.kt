@@ -1,7 +1,5 @@
 package com.example.preperly.screens
 
-
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -42,7 +40,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -266,7 +263,6 @@ fun RestaurantRegistrationForm(
                             isError = alternateNumberError != null,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                         )
-
                         if(!viewModel.validateAlternatePhone()){
                             phoneNumberError?.let {
                                 Text(
@@ -444,15 +440,15 @@ fun RestaurantRegistrationForm(
 
                 Button(
                     onClick = {
-                        if(viewModel.validateForm() && viewModel.validateAlternatePhone() && viewModel.validateOwnerEmail()){
-                            val registrationResponse = viewModel.registerUser()
-                            if(registrationResponse.status == 200){
-                                onNext()
-                            }else{
-                                Toast.makeText(context,registrationResponse.message,Toast.LENGTH_SHORT).show()
-                            }
-                        }
-//                        onNext()
+//                        if(viewModel.validateForm() && viewModel.validateAlternatePhone() && viewModel.validateOwnerEmail()){
+//                            val registrationResponse = viewModel.registerUser()
+//                            if(registrationResponse.status == 200){
+//                                onNext()
+//                            }else{
+//                                Toast.makeText(context,registrationResponse.message,Toast.LENGTH_SHORT).show()
+//                            }
+//                        }
+                        onNext()
                         Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),
