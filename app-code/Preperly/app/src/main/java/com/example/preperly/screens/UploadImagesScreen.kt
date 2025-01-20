@@ -62,16 +62,18 @@ import com.example.preperly.viewmodels.UploadImagesViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import androidx.compose.ui.layout.ContentScale
-
+import com.example.preperly.viewmodels.SharedViewModel
 
 
 @Composable
 fun UploadImagesScreen(
     viewModel: UploadImagesViewModel,
+    sharedViewModel: SharedViewModel,
     onNext: () -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
+    Toast.makeText(context,sharedViewModel.getPhoneNumber(),Toast.LENGTH_SHORT).show()
     val restaurantLogoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
@@ -434,6 +436,7 @@ fun UploadImageScreenPreview() {
     MaterialTheme {
         UploadImagesScreen(
             viewModel = UploadImagesViewModel(),
+            sharedViewModel = SharedViewModel(),
             onNext = {navController.navigate("step5")},
             onBack = {navController.popBackStack()}
         )

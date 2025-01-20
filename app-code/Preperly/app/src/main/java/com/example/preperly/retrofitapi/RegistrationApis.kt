@@ -22,3 +22,4 @@ interface OTPApiService{
     @POST("/api/user/verification/verifyOtp")
     fun verifyOtp(@Body verifyRequest: VerifyRequest): Call<VerifyOTPResponse>
 }
+

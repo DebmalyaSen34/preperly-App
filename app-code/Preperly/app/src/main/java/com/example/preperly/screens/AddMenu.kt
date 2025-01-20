@@ -37,11 +37,13 @@ import com.example.preperly.datamodels.Category
 import com.example.preperly.datamodels.MenuItem
 import com.example.preperly.ui.theme.myRed
 import com.example.preperly.viewmodels.MenuViewModel
+import com.example.preperly.viewmodels.SharedViewModel
 
 
 @Composable
 fun MenuUploadScreen(
     viewModel: MenuViewModel,
+    sharedViewModel: SharedViewModel,
     onNext: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -52,6 +54,7 @@ fun MenuUploadScreen(
 
     // LazyColumn should handle the scrolling of menu items
     val context = LocalContext.current
+    Toast.makeText(context,sharedViewModel.getPhoneNumber(),Toast.LENGTH_SHORT).show()
 
     LazyColumn(modifier = Modifier
         .fillMaxSize()
@@ -614,6 +617,7 @@ fun MenuUploadScreenPreview() {
     MaterialTheme {
         MenuUploadScreen(
             viewModel = MenuViewModel(),
+            sharedViewModel = SharedViewModel(),
             onNext = {navController.navigate("step6")},
             onBack = {navController.popBackStack()}
         )

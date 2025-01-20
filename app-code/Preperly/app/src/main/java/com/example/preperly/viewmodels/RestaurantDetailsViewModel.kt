@@ -34,7 +34,6 @@ class RestaurantDetailsViewModel : ViewModel() {
         private set
     var restaurantAddressError = mutableStateOf<String?>(null)
         private set
-
     // Contact details
     var phoneNumber = mutableStateOf("")
         private set
@@ -236,7 +235,6 @@ class RestaurantDetailsViewModel : ViewModel() {
             ownerNameError.value = "Owner name must be 2-50 characters, and can only contain letters, spaces, ', or -"
             return false
         }
-
         ownerNameError.value = null
         return true
     }

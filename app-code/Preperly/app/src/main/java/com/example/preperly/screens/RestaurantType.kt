@@ -39,10 +39,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.compose.rememberNavController
 import com.example.preperly.ui.theme.myRed
 import com.example.preperly.viewmodels.RestaurantTypeViewModel
+import com.example.preperly.viewmodels.SharedViewModel
 
 @Composable
 fun RestaurantTypeAndTimingsScreen(
     viewModel: RestaurantTypeViewModel,
+    sharedViewModel: SharedViewModel,
     onNext: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -51,6 +53,7 @@ fun RestaurantTypeAndTimingsScreen(
     val cuisineTypeError by viewModel.cuisineTypeError
     val context = LocalContext.current
 
+    Toast.makeText(context,sharedViewModel.getPhoneNumber(),Toast.LENGTH_SHORT).show()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -303,6 +306,7 @@ fun RestaurantTypePreview() {
     MaterialTheme {
         RestaurantTypeAndTimingsScreen(
             viewModel = RestaurantTypeViewModel(),
+            sharedViewModel = SharedViewModel(),
             onNext = {navController.navigate("step3")},
             onBack = {navController.popBackStack()}
         )

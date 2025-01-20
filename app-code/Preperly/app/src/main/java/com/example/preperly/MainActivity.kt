@@ -28,6 +28,7 @@ import com.example.preperly.viewmodels.RestaurantDashboardViewModel
 import com.example.preperly.viewmodels.RestaurantDetailsViewModel
 import com.example.preperly.viewmodels.RestaurantMenuScreenViewModel
 import com.example.preperly.viewmodels.RestaurantTypeViewModel
+import com.example.preperly.viewmodels.SharedViewModel
 import com.example.preperly.viewmodels.UploadImagesViewModel
 import kotlinx.coroutines.launch
 
@@ -60,7 +61,8 @@ fun PreperlyNavigation(){
             viewModel6 = RestaurantDashboardViewModel(),
             viewModel7 = RestaurantMenuScreenViewModel(),
             viewModel8 = OrderDetailsScreenViewModel(),
-            viewModel9 = AnalyticsViewModel()
+            viewModel9 = AnalyticsViewModel(),
+            sharedViewModel = SharedViewModel()
         )
         }
     }

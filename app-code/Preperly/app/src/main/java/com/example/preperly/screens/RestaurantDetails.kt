@@ -48,10 +48,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.example.preperly.ui.theme.myRed
 import com.example.preperly.viewmodels.RestaurantDetailsViewModel
+import com.example.preperly.viewmodels.SharedViewModel
 
 @Composable
 fun RestaurantRegistrationForm(
     viewModel: RestaurantDetailsViewModel,
+    sharedViewModel: SharedViewModel,
     onNext: () -> Unit) {
 
     val restaurantName by viewModel.restaurantName
@@ -169,6 +171,7 @@ fun RestaurantRegistrationForm(
                             modifier = Modifier.fillMaxWidth(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                         )
+                        sharedViewModel.updatePhoneNumber(phoneNumber)
 
                         phoneNumberError?.let {
                             Text(
@@ -469,6 +472,7 @@ fun RestaurantRegistrationFormPreview() {
     MaterialTheme {
         RestaurantRegistrationForm(
             viewModel = RestaurantDetailsViewModel(),
+            sharedViewModel = SharedViewModel(),
             onNext = {navController.navigate("step2")}
         )
     }

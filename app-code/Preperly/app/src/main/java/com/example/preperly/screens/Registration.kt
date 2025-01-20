@@ -24,6 +24,7 @@ import com.example.preperly.viewmodels.RestaurantDashboardViewModel
 import com.example.preperly.viewmodels.RestaurantDetailsViewModel
 import com.example.preperly.viewmodels.RestaurantMenuScreenViewModel
 import com.example.preperly.viewmodels.RestaurantTypeViewModel
+import com.example.preperly.viewmodels.SharedViewModel
 import com.example.preperly.viewmodels.UploadImagesViewModel
 
 @Composable
@@ -37,18 +38,21 @@ fun RegisterNavHost(
     viewModel6: RestaurantDashboardViewModel,
     viewModel7: RestaurantMenuScreenViewModel,
     viewModel8: OrderDetailsScreenViewModel,
-    viewModel9: AnalyticsViewModel
+    viewModel9: AnalyticsViewModel,
+    sharedViewModel: SharedViewModel
     ){
     NavHost(navController = navController, startDestination = "step1"){
         composable("step1") {
             RestaurantRegistrationForm(
                 viewModel = viewModel1,
+                sharedViewModel = sharedViewModel,
                 onNext = {navController.navigate("step2")}
             )
         }
         composable("step2") {
             RestaurantTypeAndTimingsScreen(
                 viewModel = viewModel2,
+                sharedViewModel = sharedViewModel,
                 onNext = { navController.navigate("step3") },
                 onBack = { navController.popBackStack() }
             )
@@ -56,6 +60,7 @@ fun RegisterNavHost(
         composable("step3") {
             DocumentsUploadScreen(
                 viewModel = viewModel3,
+                sharedViewModel = sharedViewModel,
                 onNext = { navController.navigate("step4") },
                 onBack = { navController.popBackStack() }
             )
@@ -63,6 +68,7 @@ fun RegisterNavHost(
         composable("step4") {
             UploadImagesScreen(
                 viewModel = viewModel4,
+                sharedViewModel = sharedViewModel,
                 onNext = { navController.navigate("step5") },
                 onBack = { navController.popBackStack() }
             )
@@ -70,6 +76,7 @@ fun RegisterNavHost(
         composable("step5") {
             MenuUploadScreen(
                 viewModel = viewModel5,
+                sharedViewModel = sharedViewModel,
                 onNext = { navController.navigate("step6") },
                 onBack = { navController.popBackStack() }
             )
@@ -82,7 +89,6 @@ fun RegisterNavHost(
                 viewModel3 = viewModel9
             )
         }
-
     }
 }
 

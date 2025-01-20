@@ -35,16 +35,20 @@ import com.example.preperly.viewmodels.DocumentsUploadViewModel
 import com.example.preperly.R
 import com.example.preperly.datamodels.DocumentData
 import com.example.preperly.ui.theme.myRed
+import com.example.preperly.viewmodels.SharedViewModel
 import java.io.File
 
 @Composable
 fun DocumentsUploadScreen(
     viewModel: DocumentsUploadViewModel,
+    sharedViewModel: SharedViewModel,
     onNext: () -> Unit,
     onBack: () -> Unit
 ) {
 
     val context = LocalContext.current
+    Toast.makeText(context,sharedViewModel.getPhoneNumber(),Toast.LENGTH_SHORT).show()
+
     var fssaiUri by remember { mutableStateOf<Uri?>(null) }
     var gstinUri by remember { mutableStateOf<Uri?>(null) }
     var panCardUri by remember { mutableStateOf<Uri?>(null) }
@@ -367,6 +371,7 @@ fun DocumentsUploadPreview() {
     MaterialTheme {
         DocumentsUploadScreen(
             viewModel = DocumentsUploadViewModel(),
+            sharedViewModel = SharedViewModel(),
             onNext = {navController.navigate("step4")},
             onBack = {navController.popBackStack()}
         )
