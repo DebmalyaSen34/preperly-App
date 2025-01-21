@@ -3,15 +3,23 @@ package com.example.preperly.viewmodels
 
 import android.util.Log
 import androidx.compose.runtime.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.preperly.RetrofitInstance
 import com.example.preperly.datamodels.DayTimeSlots
 import com.example.preperly.datamodels.TimeSlot
+import com.example.preperly.datamodels.UserResponse
 import com.google.gson.Gson
+import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.regex.Pattern
 
 
-class RestaurantTypeViewModel {
+class RestaurantTypeViewModel: ViewModel() {
 
     // Constants and Patterns
     private val timePattern = Pattern.compile("^(1[0-2]|0?[1-9]):[0-5][0-9] (AM|PM)$")
@@ -34,6 +42,7 @@ class RestaurantTypeViewModel {
     val selectedDays = mutableStateListOf<String>()
 
     var selectedDayAdv by mutableStateOf("Select Day")
+    var registrationResponse by mutableStateOf(UserResponse("",0))
 
     private val timeSlots = mutableStateMapOf<String, MutableList<TimeSlot>>()
 
@@ -168,6 +177,41 @@ class RestaurantTypeViewModel {
         val groupedTimeSlots = groupTimeSlotsByDay()
         Log.d("beforeJson", groupedTimeSlots.toString())
         Log.d("GroupedTimeSlots",Gson().toJson(groupedTimeSlots))
+    }
+
+    fun resTypeTimingsToApi(phoneNumber: String){
+
+
+        viewModelScope.launch {
+
+            val timings = groupTimeSlotsByDay()
+
+            Log.d("UserData", timings.toString())
+            RetrofitInstance.userRegisterApi.restaurantTypeDetails(phoneNumber,timings,cuisineType).enqueue(object :
+                Callback<UserResponse> {
+                override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
+                    if (response.isSuccessful) {
+                        // Handle success
+                        val userResponse = response.body()
+                        // Update UI or notify success
+                        if(userResponse?.status == 200){
+                            Log.d("UserResponse",userResponse.message)
+                            registrationResponse = UserResponse(message = userResponse.message, status = userResponse.status)
+                        }
+                    } else {
+                        // Handle error
+                        Log.d("UserResponse", "Error: ${response.message()}")
+                        registrationResponse = UserResponse(message = response.message(), status = response.code())
+                    }
+                }
+
+                override fun onFailure(call: Call<UserResponse>, t: Throwable) {
+                    // Handle failure
+                    Log.d("UserResponse", "No response from API: ${t.message}")
+                    registrationResponse = t.message?.let { UserResponse(message = it, status = 500) }!!
+                }
+            })
+        }
     }
 
 }

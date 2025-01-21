@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.example.preperly.viewmodels.DocumentsUploadViewModel
 import com.example.preperly.R
-import com.example.preperly.datamodels.DocumentData
 import com.example.preperly.ui.theme.myRed
 import com.example.preperly.viewmodels.SharedViewModel
 import java.io.File
@@ -53,11 +52,11 @@ fun DocumentsUploadScreen(
     var gstinUri by remember { mutableStateOf<Uri?>(null) }
     var panCardUri by remember { mutableStateOf<Uri?>(null) }
 
-    fun getFileFromUri(context: Context, uri: Uri?): File {
+    fun getFileFromUri(context: Context, uri: Uri?,fileName: String): File {
         val contentResolver = context.contentResolver
-        val file = File(context.cacheDir, "tempFile")
+        val file = File(context.cacheDir, fileName)
 
-        if (uri != null) {
+        if(uri != null){
             contentResolver.openInputStream(uri)?.use { inputStream ->
                 file.outputStream().use { outputStream ->
                     inputStream.copyTo(outputStream)
@@ -70,30 +69,31 @@ fun DocumentsUploadScreen(
     val fssaiLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             fssaiUri = uri
-            viewModel.fssaiDocument = getFileFromUri(context,uri)
+            viewModel.fssaiDocument.value = getFileFromUri(context, uri,"fssaiDoc")
 
             uri.let {
                 Toast.makeText(context, "FSSAI Document Selected: $uri", Toast.LENGTH_SHORT).show()
-                Log.d("fssai doc", viewModel.fssaiDocument!!.path.toString())
+                Log.d("fssai doc", viewModel.fssaiDocument.value.path.toString())
             }
         }
     val gstinLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             gstinUri = uri
-            viewModel.gstinDocument = getFileFromUri(context,uri)
+            viewModel.gstinDocument.value = getFileFromUri(context, uri,"gstinDoc")
 
             uri.let {
                 Toast.makeText(context, "GSTIN Document Selected: $uri", Toast.LENGTH_SHORT).show()
+                Log.d("fssai doc", viewModel.gstinDocument.value.path.toString())
             }
         }
     val panCardLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             panCardUri = uri
-            viewModel.panCardDocument =getFileFromUri(context,uri)
+            viewModel.panCardDocument.value =getFileFromUri(context, uri,"panDoc")
 
             uri.let {
-                Toast.makeText(context, "Pan Card Document Selected: $uri", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(context, "Pan Card Document Selected: $uri", Toast.LENGTH_SHORT).show()
+                Log.d("fssai doc", viewModel.panCardDocument.value.path.toString())
             }
         }
 
@@ -141,16 +141,17 @@ fun DocumentsUploadScreen(
                 )
             }
 
-            viewModel.fssaiDocument?.let {
+            if(viewModel.fssaiDocument.value.path.isNotBlank()){
                 DocumentUploadSuccess(context, fssaiUri)
-
-            } ?: Text(
-                "Add FSSAI document*",
-                color = myRed,
-                fontSize = 14.sp,
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Bold
-            )
+            }else{
+                Text(
+                    "Add FSSAI document*",
+                    color = myRed,
+                    fontSize = 14.sp,
+                    fontStyle = FontStyle.Italic,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
         }
 
@@ -185,16 +186,18 @@ fun DocumentsUploadScreen(
                 )
             }
 
-            viewModel.gstinDocument?.let {
+            if(viewModel.gstinDocument.value.path.isNotBlank()){
                 DocumentUploadSuccess(context, gstinUri)
 
-            } ?: Text(
+            }else{
+                Text(
                 "Add Latest GSTIN Filed document*",
                 color = myRed,
                 fontSize = 14.sp,
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Bold
-            )
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -229,16 +232,17 @@ fun DocumentsUploadScreen(
                 )
             }
 
-            viewModel.panCardDocument?.let {
+            if(viewModel.panCardDocument.value.path.isNotBlank()) {
                 DocumentUploadSuccess(context, panCardUri)
-
-            } ?: Text(
-                "Add Pan card photo*",
-                color = myRed,
-                fontSize = 14.sp,
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Bold
-            )
+            }else{
+                Text(
+                    "Add Pan card photo*",
+                    color = myRed,
+                    fontSize = 14.sp,
+                    fontStyle = FontStyle.Italic,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -302,11 +306,12 @@ fun DocumentsUploadScreen(
             Spacer(modifier = Modifier.width(16.dp))
             Button(
                 onClick = {
-//                    Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
 //                    if(viewModel.validateInputs() && viewModel.areAllDocumentsPresent()){
+//                        viewModel.restaurantDocsToApi(sharedViewModel.getPhoneNumber())
 //                        onNext()
 //                    }
-                    onNext()
+//                    onNext()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = myRed),
                 modifier = Modifier.weight(1f)

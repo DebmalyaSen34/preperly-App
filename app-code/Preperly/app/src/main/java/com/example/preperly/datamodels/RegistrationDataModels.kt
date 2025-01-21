@@ -1,6 +1,7 @@
 package com.example.preperly.datamodels
 
-import java.io.File
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 data class User(
     val restaurantName: String,
@@ -27,17 +28,17 @@ data class DayTimeSlots(
 )
 
 data class DocumentData(
-    val fssaiLicence: String,
-    val gstin: String,
-    val panCard: String,
-    val accountHolderName: String,
-    val accountNumber: String,
-    val fssaiDocument: File,
-    val gstinDocument: File,
-    val panCardDocument: File
+    val fssaiLicence: RequestBody,
+    val gstin: RequestBody,
+    val panCard: RequestBody,
+    val accountHolderName: RequestBody,
+    val accountNumber: RequestBody,
+    val fssaiDocument: MultipartBody.Part,
+    val gstinDocument: MultipartBody.Part,
+    val panCardDocument: MultipartBody.Part
 )
 
 data class UploadedImagesRes(
-    val restaurantLogos: List<File>,
-    val restaurantImages: List<File>
+    val restaurantLogos: List<MultipartBody.Part>,
+    val restaurantImages: List<MultipartBody.Part>
 )

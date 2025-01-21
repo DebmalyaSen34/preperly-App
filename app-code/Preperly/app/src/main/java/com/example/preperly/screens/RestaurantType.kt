@@ -174,9 +174,10 @@ fun RestaurantTypeAndTimingsScreen(
             Spacer(modifier = Modifier.width(16.dp))
             Button(
                 onClick = {
-//                    viewModel.saveTimeSlot()
+                    viewModel.saveTimeSlot()
 //                    if (viewModel.errorMessageAdv.value.isEmpty() && viewModel.errorMessageNormal.value.isEmpty() && cuisineTypeError.isNullOrEmpty() && viewModel.selectedDays.size > 1) {
 //                        viewModel.readTimeSlot()
+//                        viewModel.resTypeTimingsToApi(sharedViewModel.getPhoneNumber())
 //                        onNext()
 //                    }
                     onNext()

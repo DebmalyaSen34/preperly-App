@@ -28,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -97,6 +98,7 @@ fun RestaurantRegistrationForm(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     var showSuccessToast by remember { mutableStateOf(false) }
+    val registrationResponse by viewModel.registrationResponse.collectAsState()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -443,16 +445,16 @@ fun RestaurantRegistrationForm(
 
                 Button(
                     onClick = {
-//                        if(viewModel.validateForm() && viewModel.validateAlternatePhone() && viewModel.validateOwnerEmail()){
-//                            val registrationResponse = viewModel.registerUser()
-//                            if(registrationResponse.status == 200){
-//                                onNext()
-//                            }else{
-//                                Toast.makeText(context,registrationResponse.message,Toast.LENGTH_SHORT).show()
-//                            }
-//                        }
-                        onNext()
-                        Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
+                        if(viewModel.validateForm() && viewModel.validateAlternatePhone() && viewModel.validateOwnerEmail()){
+                            viewModel.registerUser()
+                            if(registrationResponse.status == 200){
+                                onNext()
+                            }else{
+                                Toast.makeText(context,registrationResponse.message,Toast.LENGTH_SHORT).show()
+                            }
+                        }
+//                        onNext()
+//                        Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),
                     modifier = Modifier

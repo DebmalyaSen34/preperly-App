@@ -140,10 +140,11 @@ fun MenuUploadScreen(
                         onNext()
 //                        if(viewModel.menuItems.isNotEmpty()){
 //                            onNext()
+//                            viewModel.resMenuToApi(sharedViewModel.getPhoneNumber())
 //                        }else{
 //                            Toast.makeText(context,"Please Add your Menu",Toast.LENGTH_SHORT).show()
 //                        }
-//                        Log.d("Next Button","Clicked")
+                        Log.d("Next Button","Clicked")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),
                     modifier = Modifier

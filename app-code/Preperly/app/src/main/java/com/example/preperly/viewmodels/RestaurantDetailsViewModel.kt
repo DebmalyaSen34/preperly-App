@@ -15,6 +15,8 @@ import com.example.preperly.datamodels.SendOTPResponse
 import com.example.preperly.datamodels.VerifyOTPResponse
 import com.example.preperly.datamodels.VerifyRequest
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -81,6 +83,9 @@ class RestaurantDetailsViewModel : ViewModel() {
         private set
 
     var receiveUpdatesOnWhatsApp = mutableStateOf(false)
+
+    private val _registrationResponse = MutableStateFlow(UserResponse("", 0))
+    val registrationResponse: StateFlow<UserResponse> = _registrationResponse
 
     // Functions to update each field
     fun updateRestaurantName(newValue: String) {
@@ -286,9 +291,7 @@ class RestaurantDetailsViewModel : ViewModel() {
         return user
     }
 
-    fun registerUser() : UserResponse{
-
-        var registrationResponse = UserResponse("",0)
+    fun registerUser(){
         viewModelScope.launch {
             val user = createUser()
             Log.d("UserData", user.toString())
@@ -300,23 +303,21 @@ class RestaurantDetailsViewModel : ViewModel() {
                         // Update UI or notify success
                         if(userResponse?.status == 200){
                             Log.d("UserResponse",userResponse.message)
-                            registrationResponse = UserResponse(message = userResponse.message, status = userResponse.status)
+                            _registrationResponse.value = UserResponse(userResponse.message, userResponse.status)
                         }
                     } else {
                         // Handle error
                         Log.d("UserResponse", "Error: ${response.message()}")
-                        registrationResponse = UserResponse(message = response.message(), status = response.code())
+                        _registrationResponse.value = UserResponse(response.message(), response.code())
                     }
                 }
-
                 override fun onFailure(call: Call<UserResponse>, t: Throwable) {
                     // Handle failure
                     Log.d("UserResponse", "No response from API: ${t.message}")
-                    registrationResponse = t.message?.let { UserResponse(message = it, status = 500) }!!
+                    _registrationResponse.value = UserResponse(t.message ?: "Unknown error", 500)
                 }
             })
         }
-        return  registrationResponse
     }
 
     fun sendOtp(){

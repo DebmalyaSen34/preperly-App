@@ -1,20 +1,32 @@
 package com.example.preperly.viewmodels
 
-import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.preperly.RetrofitInstance
+import com.example.preperly.datamodels.DocumentData
+import com.example.preperly.datamodels.UserResponse
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 
-class DocumentsUploadViewModel {
+class DocumentsUploadViewModel: ViewModel() {
 
-    var fssaiDocument by mutableStateOf<File?>(null)
+    var fssaiDocument = mutableStateOf(File(""))
 
-    var gstinDocument by mutableStateOf<File?>(null)
+    var gstinDocument = mutableStateOf(File(""))
 
-    var panCardDocument by mutableStateOf<File?>(null)
+    var panCardDocument = mutableStateOf(File(""))
 
     var currentStep by mutableIntStateOf(3)
 
@@ -45,6 +57,8 @@ class DocumentsUploadViewModel {
 
     var areAllDocumentsPresentError by mutableStateOf("")
         private set
+
+    var registrationResponse by mutableStateOf(UserResponse("",0))
 
     fun updateFssaiLicence(newValue: String) {
         fssaiLicence = newValue
@@ -130,12 +144,76 @@ class DocumentsUploadViewModel {
 
         Log.d("documents","$panCardDocument $fssaiDocument $gstinDocument")
 
-        if(panCardDocument == null || fssaiDocument == null || gstinDocument == null){
+        if(panCardDocument.value.path.isEmpty() || fssaiDocument.value.path.isEmpty() || gstinDocument.value.path.isEmpty()){
             areAllDocumentsPresentError = "Please Upload all Documents"
             return false
         }
         areAllDocumentsPresentError = ""
         return true
+    }
+
+    private fun convertToRequestBody(document: File, fileName: String): MultipartBody.Part {
+        val filePart = MultipartBody.Part.createFormData(
+            fileName,  // Key name expected by the server
+            document.name,        // Original file name
+            document.asRequestBody("application/pdf".toMediaType()) // File as RequestBody
+        )
+        return filePart
+    }
+
+//    private fun createDocumentData(): DocumentData {
+//
+//        return DocumentData(
+//
+//            fssaiLicence = fssaiLicence.toRequestBody("text/plain".toMediaType()),
+//            gstin = gstin.toRequestBody("text/plain".toMediaType()),
+//            panCard = panCard.toRequestBody("text/plain".toMediaType()),
+//            accountHolderName = accountHolderName.toRequestBody("text/plain".toMediaType()),
+//            accountNumber = accountNumber.toRequestBody("text/plain".toMediaType()),
+//            fssaiDocument = convertToRequestBody(fssaiDocument.value,"fssaiDoc"),
+//            gstinDocument = convertToRequestBody(gstinDocument.value, "gstinDoc"),
+//            panCardDocument = convertToRequestBody(panCardDocument.value, "panDoc")
+//        )
+//    }
+
+    fun restaurantDocsToApi(phoneNumber: String) {
+
+        viewModelScope.launch {
+            RetrofitInstance.userRegisterApi.restaurantDocData(
+                phoneNumber = phoneNumber,
+                fssaiLicence = fssaiLicence.toRequestBody("text/plain".toMediaType()),
+                gstin = gstin.toRequestBody("text/plain".toMediaType()),
+                panCard = panCard.toRequestBody("text/plain".toMediaType()),
+                accountHolderName = accountHolderName.toRequestBody("text/plain".toMediaType()),
+                accountNumber = accountNumber.toRequestBody("text/plain".toMediaType()),
+                fssaiDocument = convertToRequestBody(fssaiDocument.value,"fssaiDoc"),
+                gstinDocument = convertToRequestBody(gstinDocument.value, "gstinDoc"),
+                panCardDocument = convertToRequestBody(panCardDocument.value, "panDoc")
+            ).enqueue(object :
+                Callback<UserResponse> {
+                override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
+                    if (response.isSuccessful) {
+                        // Handle success
+                        val userResponse = response.body()
+                        // Update UI or notify success
+                        if(userResponse?.status == 200){
+                            Log.d("UserResponse",userResponse.message)
+                            registrationResponse = UserResponse(message = userResponse.message, status = userResponse.status)
+                        }
+                    } else {
+                        // Handle error
+                        Log.d("UserResponse", "Error: ${response.message()}")
+                        registrationResponse = UserResponse(message = response.message(), status = response.code())
+                    }
+                }
+
+                override fun onFailure(call: Call<UserResponse>, t: Throwable) {
+                    // Handle failure
+                    Log.d("UserResponse", "No response from API: ${t.message}")
+                    registrationResponse = t.message?.let { UserResponse(message = it, status = 500) }!!
+                }
+            })
+        }
     }
 }
 

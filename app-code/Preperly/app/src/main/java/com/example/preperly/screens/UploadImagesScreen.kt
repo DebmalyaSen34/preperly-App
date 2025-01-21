@@ -162,6 +162,7 @@ fun UploadImagesScreen(
                     onClick = {
 //                        if(viewModel.restaurantImages.isNotEmpty() && viewModel.restaurantLogo.isNotEmpty()){
 //                            viewModel.saveImageFiles(context)
+//                            viewModel.restaurantImagesToApi(sharedViewModel.getPhoneNumber())
 //                            onNext()
 //                        }else{
 //                            Toast.makeText(context,"Please Upload Images...", Toast.LENGTH_SHORT).show()

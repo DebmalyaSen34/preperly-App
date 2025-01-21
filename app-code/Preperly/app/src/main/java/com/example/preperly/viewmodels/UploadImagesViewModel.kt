@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -17,7 +18,17 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.preperly.RetrofitInstance
+import com.example.preperly.datamodels.UserResponse
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -30,6 +41,7 @@ class UploadImagesViewModel : ViewModel(){
     var restaurantImages = mutableStateListOf<Uri>()
     private var restaurantLogoFiles = mutableStateListOf<File>()
     private var restaurantImagesFiles = mutableStateListOf<File>()
+    var registrationResponse by mutableStateOf(UserResponse("",0))
 
     fun onDeleteImage(uri: Uri,whichImage: String){
 
@@ -86,4 +98,49 @@ class UploadImagesViewModel : ViewModel(){
             null // Return null if an error occurs
         }
     }
+
+    private fun convertFilesToMultipartBodyPart(files: List<File>, keyName: String): List<MultipartBody.Part> {
+        return files.map { file ->
+            MultipartBody.Part.createFormData(
+                keyName, // Key name expected by the server
+                file.name, // File name
+                file.asRequestBody("image/jpg".toMediaTypeOrNull()) // Replace with the correct MIME type
+            )
+        }
+    }
+
+    fun restaurantImagesToApi(phoneNumber: String) {
+
+        viewModelScope.launch {
+            RetrofitInstance.userRegisterApi.uploadImages(
+                phoneNumber = phoneNumber,
+                convertFilesToMultipartBodyPart(restaurantLogoFiles,"restaurantLogos"),
+                convertFilesToMultipartBodyPart(restaurantImagesFiles,"restaurantImages")
+            ).enqueue(object :
+                Callback<UserResponse> {
+                override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
+                    if (response.isSuccessful) {
+                        // Handle success
+                        val userResponse = response.body()
+                        // Update UI or notify success
+                        if(userResponse?.status == 200){
+                            Log.d("UserResponse",userResponse.message)
+                            registrationResponse = UserResponse(message = userResponse.message, status = userResponse.status)
+                        }
+                    } else {
+                        // Handle error
+                        Log.d("UserResponse", "Error: ${response.message()}")
+                        registrationResponse = UserResponse(message = response.message(), status = response.code())
+                    }
+                }
+
+                override fun onFailure(call: Call<UserResponse>, t: Throwable) {
+                    // Handle failure
+                    Log.d("UserResponse", "No response from API: ${t.message}")
+                    registrationResponse = t.message?.let { UserResponse(message = it, status = 500) }!!
+                }
+            })
+        }
+    }
+
 }
