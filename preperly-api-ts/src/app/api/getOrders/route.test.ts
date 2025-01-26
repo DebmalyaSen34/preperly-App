@@ -1,6 +1,6 @@
 import { GET } from "@/app/api/getOrders/route";
 import Order from "@/models/order";
-import Vendor from "@/models/user";
+import Vendor from "@/models/vendor";
 import { connectToDatabase } from "@/utils/db";
 
 jest.mock("@/models/order", () => ({

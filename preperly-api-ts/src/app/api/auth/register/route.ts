@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import bcrypt from 'bcrypt';
 import { connectToDatabase } from "@/utils/db";
 import client from "@/lib/redisDb";
-import Vendor from "@/models/user";
-import { uploadDocument } from "@/lib/uploadDocuments";
-
+import Vendor from "@/models/vendor";
+import { bucket } from "@/utils/gcsClient";
 interface step1DataType {
     restaurantName: string,
     restaurantAddress: string,
@@ -62,6 +61,7 @@ export async function userExists(mobileNumber: string): Promise<boolean> {
 //* Step 3: Push restaurant documents
 export async function step3(formData: FormData): Promise<NextResponse> {
     try {
+        const phoneNumber = formData.get('phoneNumber') as string;
         const fssaiLicense = formData.get('fssaiLicense') as string;
         const gstin = formData.get('gstin') as string;
         const panCard = formData.get('panCard') as string;
@@ -78,29 +78,45 @@ export async function step3(formData: FormData): Promise<NextResponse> {
 
         console.log('Received Documents: ', { fssaiDocument, gstinDocument, panCardDocument });
 
-        // Upload documents
-        const fssaiUpload = await uploadDocument(fssaiDocument);
-        const gstinUpload = await uploadDocument(gstinDocument);
-        const panCardUpload = await uploadDocument(panCardDocument);
+        const uploadDocumentWithPhoneNumber = async (file: File, docType: string) => {
+            const extension = file.name.split('.').pop();
+            const fileName = `${phoneNumber}/${docType}/document-${Date.now()}.${extension}`;
 
-        if (!fssaiUpload.success || !gstinUpload.success || !panCardUpload.success) {
-            return NextResponse.json({
-                success: false,
-                message: "Error uploading documents",
-                errors: {
-                    fssai: fssaiUpload.error,
-                    gstin: gstinUpload.error,
-                    panCard: panCardUpload.error
+            const blob = bucket.file(fileName);
+            const buffer = Buffer.from(await file.arrayBuffer());
+
+            await blob.save(buffer, {
+                metadata: {
+                    contentType: file.type
                 }
-            }, { status: 500 });
+            });
+
+            return `https://storage.googleapis.com/${bucket.name}/${fileName}`;
         }
 
-        // Store document references in Redis (you may want to store these in your database later)
-        await client.setEx(`${fssaiLicense}_fssaiDocument`, 3600, String(fssaiUpload.fileId));
-        await client.setEx(`${gstin}_gstinDocument`, 3600, String(gstinUpload.fileId));
-        await client.setEx(`${panCard}_panCardDocument`, 3600, String(panCardUpload.fileId));
+        const [fssaiDocumentUrl, gstinDocumentUrl, panCardDocumentUrl] = await Promise.all([
+            uploadDocumentWithPhoneNumber(fssaiDocument, 'fssai'),
+            uploadDocumentWithPhoneNumber(gstinDocument, 'gstin'),
+            uploadDocumentWithPhoneNumber(panCardDocument, 'panCard')
+        ]);
 
-        return NextResponse.json({ success: true, message: "Documents uploaded successfully!" }, { status: 200 });
+        await client.setEx(`${phoneNumber}_documents`, 3600, JSON.stringify({
+            fssai: { license: fssaiLicense, url: fssaiDocumentUrl },
+            gstin: { number: gstin, url: gstinDocumentUrl },
+            pan: { number: panCard, url: panCardDocumentUrl },
+            bankAccount: {
+                number: accountNumber,
+                name: accountHolderName
+            }
+        }));
+
+        return NextResponse.json({
+            success: true, message: "Documents uploaded successfully!", documents: {
+                fssaiUrl: fssaiDocumentUrl,
+                gstinUrl: gstinDocumentUrl,
+                panUrl: panCardDocumentUrl
+            }
+        }, { status: 200 });
 
     } catch (error) {
         console.error("Error in processing documents in step 3:", error);
