@@ -6,7 +6,7 @@ jest.mock('@/lib/uploadDocuments');
 jest.mock('@/lib/redisDb');
 
 describe('step3 function', () => {
-    const mockFormData = (fields: Record<string, any>) => {
+    const mockFormData = (fields: Record<string, string | File>) => {
         const formData = new FormData();
         for (const key in fields) {
             formData.append(key, fields[key]);

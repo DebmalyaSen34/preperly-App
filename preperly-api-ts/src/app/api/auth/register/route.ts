@@ -40,30 +40,11 @@ interface step2DataType {
 // For each step different request body
 
 
-//* Check if user exists
-export async function userExists(mobileNumber: string): Promise<boolean> {
-    try {
-
-        await connectToDatabase();
-
-        const user = await Vendor.findOne({ phoneNumber: mobileNumber });
-
-        if (user) {
-            return true;
-        } else {
-            return false;
-        }
-    } catch (error) {
-        console.error("Error checking if user exists:", error);
-        throw new Error;
-    }
-}
-
 //* Step 5: Save the menu data
 //TODO: Save the menu data to the database
 
 //* Step 6: Save the user data to the database
-export async function step6(phoneNumber: string): Promise<NextResponse> {
+async function step6(phoneNumber: string): Promise<NextResponse> {
     try {
         if (!phoneNumber || phoneNumber === "") {
             return NextResponse.json({ success: false, message: "Phone number not provided!" }, { status: 400 });
@@ -113,7 +94,7 @@ export async function step6(phoneNumber: string): Promise<NextResponse> {
 }
 
 //* Step 4: Push restaurant images
-export async function step4(formData: FormData): Promise<NextResponse> {
+async function step4(formData: FormData): Promise<NextResponse> {
     try {
         const phoneNumber = formData.get('phoneNumber') as string;
         const restaurantImages = formData.getAll('restaurantImages') as File[];
@@ -165,7 +146,7 @@ export async function step4(formData: FormData): Promise<NextResponse> {
 
 
 //* Step 3: Push restaurant documents
-export async function step3(formData: FormData): Promise<NextResponse> {
+async function step3(formData: FormData): Promise<NextResponse> {
     try {
         const phoneNumber = formData.get('phoneNumber') as string;
         const fssaiLicense = formData.get('fssaiLicense') as string;

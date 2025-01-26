@@ -1,5 +1,4 @@
 import { step3 } from "@/app/api/auth/register/route";
-import { NextResponse } from "next/server";
 import client from "@/lib/redisDb";
 
 jest.mock("@/lib/redisDb");
