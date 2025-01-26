@@ -34,7 +34,6 @@ interface dateTimeDataType {
 }
 
 export interface step2DataType {
-    phoneNumber: string,
     timings: dateTimeDataType[]
 }
 
@@ -57,6 +56,30 @@ const dateTimeDataSchema = new Schema<dateTimeDataType>({
     },
     slots: [timeSlotSchema]
 });
+
+export interface step3DataType {
+    fssai: {
+        license: string,
+        url: string
+    },
+    gstin: {
+        number: string,
+        url: string
+    },
+    pan: {
+        number: string,
+        url: string
+    },
+    bankAccount: {
+        number: string,
+        name: string
+    }
+}
+
+export interface step4DataType {
+    imageUrls: string[];
+    logoUrl: string;
+}
 
 export const step1DataScheme = new Schema<step1DataType>({
     restaurantName: {
@@ -106,10 +129,59 @@ export const step1DataScheme = new Schema<step1DataType>({
 });
 
 export const step2DataScheme = new Schema<step2DataType>({
-    phoneNumber: {
-        type: String,
-        required: true,
-        unique: true
-    },
     timings: [dateTimeDataSchema]
+});
+
+export const step3DataScheme = new Schema<step3DataType>({
+    fssai: {
+        license: {
+            type: String,
+            required: true
+        },
+        url: {
+            type: String,
+            required: true
+        }
+    },
+    gstin: {
+        number: {
+            type: String,
+            required: true
+        },
+        url: {
+            type: String,
+            required: true
+        }
+    },
+    pan: {
+        number: {
+            type: String,
+            required: true
+        },
+        url: {
+            type: String,
+            required: true
+        }
+    },
+    bankAccount: {
+        number: {
+            type: String,
+            required: true
+        },
+        name: {
+            type: String,
+            required: true
+        }
+    }
+});
+
+export const step4DataScheme = new Schema<step4DataType>({
+    imageUrls: {
+        type: [String],
+        required: true
+    },
+    logoUrl: {
+        type: String,
+        required: true
+    }
 });

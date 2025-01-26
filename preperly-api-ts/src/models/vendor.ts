@@ -1,16 +1,175 @@
-import mongoose from "mongoose";
-import { step1DataScheme, step2DataScheme, step1DataType, step2DataType } from "@/types/vendor";
+import mongoose, { Schema, Document } from "mongoose";
 
-interface VendorDocument extends mongoose.Document {
-    step1Data: step1DataType,
-    step2Data: step2DataType
+interface timeSlot {
+    openTime: string,
+    closeTime: string
 }
 
-const VendorSchema = new mongoose.Schema<VendorDocument>({
-    step1Data: step1DataScheme,
-    step2Data: step2DataScheme
+enum dayofWeek {
+    MONDAY = 'monday',
+    TUESDAY = 'tuesday',
+    WEDNESDAY = 'wednesday',
+    THURSDAY = 'thursday',
+    FRIDAY = 'friday',
+    SATURDAY = 'saturday',
+    SUNDAY = 'sunday'
+}
+
+interface dateTimeDataType {
+    day: dayofWeek;
+    slots: timeSlot[];
+}
+
+interface VendorDocument extends Document {
+    restaurantName: string,
+    restaurantAddress: string,
+    phoneNumber: string,
+    alternateNumber?: string,
+    email: string,
+    password: string,
+    ownerName: string,
+    ownerPhoneNumber: string,
+    ownerEmail: string,
+    receiveUpdatesOnWhatsApp?: boolean,
+    timings: dateTimeDataType[],
+    fssai: {
+        license: string,
+        url: string
+    },
+    gstin: {
+        number: string,
+        url: string
+    },
+    pan: {
+        number: string,
+        url: string
+    },
+    bankAccount: {
+        number: string,
+        name: string
+    },
+    imageUrls: string[],
+    logoUrl: string
+}
+
+const timeSlotSchema = new Schema<timeSlot>({
+    openTime: {
+        type: String,
+        required: true
+    },
+    closeTime: {
+        type: String,
+        required: true
+    }
 });
 
-const Vendor = mongoose.model<VendorDocument>("Vendors", VendorSchema);
+const dateTimeDataTypeSchema = new Schema<dateTimeDataType>({
+    day: {
+        type: String,
+        enum: Object.values(dayofWeek),
+        required: true
+    },
+    slots: {
+        type: [timeSlotSchema],
+        required: true
+    }
+});
+
+const VendorSchema = new Schema<VendorDocument>({
+    restaurantName: {
+        type: String,
+        required: true
+    },
+    restaurantAddress: {
+        type: String,
+        required: true
+    },
+    phoneNumber: {
+        type: String,
+        required: true
+    },
+    alternateNumber: {
+        type: String
+    },
+
+    email: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    ownerName: {
+        type: String,
+        required: true
+    },
+    ownerPhoneNumber: {
+        type: String,
+        required: true
+    },
+    ownerEmail: {
+        type: String,
+        required: true
+    },
+    receiveUpdatesOnWhatsApp: {
+        type: Boolean
+    },
+
+    timings: {
+        type: [dateTimeDataTypeSchema],
+        required: true
+    },
+    fssai: {
+        license: {
+            type: String,
+            required: true
+        },
+        url: {
+            type: String,
+            required: true
+        }
+    },
+    gstin: {
+        number: {
+            type: String,
+            required: true
+        },
+        url: {
+            type: String,
+            required: true
+        }
+    },
+    pan: {
+        number: {
+            type: String,
+            required: true
+        },
+        url: {
+            type: String,
+            required: true
+        }
+    },
+    bankAccount: {
+        number: {
+            type: String,
+            required: true
+        },
+        name: {
+            type: String,
+            required: true
+        }
+    },
+    imageUrls: {
+        type: [String],
+        required: true
+    },
+    logoUrl: {
+        type: String,
+        required: true
+    }
+});
+
+const Vendor = mongoose.models.Vendors || mongoose.model<VendorDocument>("Vendors", VendorSchema);
 
 export default Vendor;

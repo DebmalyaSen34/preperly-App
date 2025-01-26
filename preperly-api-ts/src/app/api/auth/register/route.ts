@@ -4,6 +4,8 @@ import { connectToDatabase } from "@/utils/db";
 import client from "@/lib/redisDb";
 import Vendor from "@/models/vendor";
 import { bucket } from "@/utils/gcsClient";
+import { v4 as uuidv4 } from 'uuid';
+
 interface step1DataType {
     restaurantName: string,
     restaurantAddress: string,
@@ -57,6 +59,110 @@ export async function userExists(mobileNumber: string): Promise<boolean> {
     }
 }
 
+//* Step 5: Save the menu data
+//TODO: Save the menu data to the database
+
+//* Step 6: Save the user data to the database
+export async function step6(phoneNumber: string): Promise<NextResponse> {
+    try {
+        if (!phoneNumber || phoneNumber === "") {
+            return NextResponse.json({ success: false, message: "Phone number not provided!" }, { status: 400 });
+        }
+
+        const user = await client.get(phoneNumber);
+
+        if (!user) {
+            return NextResponse.json({ success: false, message: "User not found!" }, { status: 404 });
+        }
+
+        const userData = JSON.parse(user);
+
+        await connectToDatabase();
+
+        console.log('Step 3 data: ', userData.documentsUrl);
+
+        const vendor = new Vendor({
+            restaurantName: userData.restaurantName,
+            restaurantAddress: userData.restaurantAddress,
+            phoneNumber: userData.phoneNumber,
+            alternateNumber: userData.alternateNumber,
+            password: userData.password,
+            email: userData.email,
+            ownerName: userData.ownerName,
+            ownerPhoneNumber: userData.ownerPhoneNumber,
+            ownerEmail: userData.ownerEmail,
+            receiveUpdatesOnWhatsApp: userData.receiveUpdatesOnWhatsApp,
+            timings: userData.timings,
+            fssai: userData.documentsUrl.fssai,
+            gstin: userData.documentsUrl.gstin,
+            pan: userData.documentsUrl.pan,
+            bankAccount: userData.documentsUrl.bankAccount,
+            imageUrls: userData.imageUrls,
+            logoUrl: userData.logoUrl
+        });
+
+        await vendor.save();
+
+        await client.del(phoneNumber);
+
+        return NextResponse.json({ success: true, message: "User registered successfully!" }, { status: 200 });
+    } catch (error) {
+        console.error("Error in step 6:", error);
+        return NextResponse.json({ success: false, message: "Internal server error in step 6" }, { status: 500 });
+    }
+}
+
+//* Step 4: Push restaurant images
+export async function step4(formData: FormData): Promise<NextResponse> {
+    try {
+        const phoneNumber = formData.get('phoneNumber') as string;
+        const restaurantImages = formData.getAll('restaurantImages') as File[];
+        const restuarantLogo = formData.get('restaurantLogo') as File;
+
+        if (!restaurantImages || !restuarantLogo) {
+            return NextResponse.json({ success: false, message: "Please upload images!" }, { status: 400 });
+        }
+
+        const uploadImagesWithPhoneNumber = async (file: File, imageType: string) => {
+            const extension = file.name.split('.').pop();
+            const folder = imageType === 'logo' ? 'restaurantLogo' : 'restaurantImages';
+            const fileName = `${phoneNumber}/${folder}/image-${Date.now()}-${uuidv4()}.${extension}`;
+
+            const blob = bucket.file(fileName);
+            const buffer = Buffer.from(await file.arrayBuffer());
+
+            await blob.save(buffer, {
+                metadata: {
+                    contentType: file.type
+                }
+            });
+
+            return `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+        }
+
+        const imageUrls = await Promise.all(restaurantImages.map(file => uploadImagesWithPhoneNumber(file, 'image')));
+        const logoUrl = await uploadImagesWithPhoneNumber(restuarantLogo, 'logo');
+
+        const user = await client.get(phoneNumber);
+
+        if (!user) {
+            return NextResponse.json({ success: false, message: "User not found!" }, { status: 404 });
+        }
+
+        const userData = JSON.parse(user);
+
+        userData.imageUrls = imageUrls;
+        userData.logoUrl = logoUrl;
+
+        await client.setEx(phoneNumber, 3600, JSON.stringify(userData));
+
+        return NextResponse.json({ success: true, message: "Images uploaded successfully!", imageUrls, logoUrl }, { status: 200 });
+    } catch (error) {
+        console.error("Error in processing images in step 4:", error);
+        return NextResponse.json({ success: false, message: "Error uploading images" }, { status: 500 });
+    }
+}
+
 
 //* Step 3: Push restaurant documents
 export async function step3(formData: FormData): Promise<NextResponse> {
@@ -94,13 +200,19 @@ export async function step3(formData: FormData): Promise<NextResponse> {
             return `https://storage.googleapis.com/${bucket.name}/${fileName}`;
         }
 
+        const user = await client.get(phoneNumber);
+
+        if (!user) {
+            return NextResponse.json({ success: false, message: "User not found!" }, { status: 404 });
+        }
+
         const [fssaiDocumentUrl, gstinDocumentUrl, panCardDocumentUrl] = await Promise.all([
             uploadDocumentWithPhoneNumber(fssaiDocument, 'fssai'),
             uploadDocumentWithPhoneNumber(gstinDocument, 'gstin'),
             uploadDocumentWithPhoneNumber(panCardDocument, 'panCard')
         ]);
 
-        await client.setEx(`${phoneNumber}_documents`, 3600, JSON.stringify({
+        const documentsUrl = {
             fssai: { license: fssaiLicense, url: fssaiDocumentUrl },
             gstin: { number: gstin, url: gstinDocumentUrl },
             pan: { number: panCard, url: panCardDocumentUrl },
@@ -108,10 +220,16 @@ export async function step3(formData: FormData): Promise<NextResponse> {
                 number: accountNumber,
                 name: accountHolderName
             }
-        }));
+        }
+
+        const userData = JSON.parse(user);
+
+        await client.setEx(phoneNumber, 3600, JSON.stringify({ ...userData, documentsUrl: documentsUrl }));
 
         return NextResponse.json({
-            success: true, message: "Documents uploaded successfully!", documents: {
+            success: true,
+            message: "Documents uploaded successfully!",
+            documents: {
                 fssaiUrl: fssaiDocumentUrl,
                 gstinUrl: gstinDocumentUrl,
                 panUrl: panCardDocumentUrl
@@ -140,7 +258,11 @@ async function step2(step2Data: step2DataType): Promise<NextResponse> {
             return NextResponse.json({ success: false, message: "User not found!" }, { status: 404 });
         }
 
-        await client.setEx(`${phoneNumber}_timings`, 3600, JSON.stringify(timings));
+        const userData = JSON.parse(user);
+
+        userData.timings = timings;
+
+        await client.setEx(phoneNumber, 3600, JSON.stringify(userData));
 
         return NextResponse.json({ success: true, message: "Step 2 data saved successfully!" }, { status: 200 });
     } catch (error) {
@@ -170,7 +292,7 @@ async function step1(step1Data: step1DataType): Promise<NextResponse> {
 
         const hashedPassword = bcrypt.hashSync(password, 10);
 
-        if (await userExists(phoneNumber)) {
+        if (await client.get(phoneNumber)) {
             return NextResponse.json({ message: "User already exists!" }, { status: 400 });
         }
 
@@ -203,6 +325,12 @@ export async function POST(request: Request): Promise<NextResponse> {
             case '3':
                 const formData = await request.formData();
                 return step3(formData);
+            case '4':
+                const formData4 = await request.formData();
+                return step4(formData4);
+            case '6':
+                const { phoneNumber } = await request.json();
+                return step6(phoneNumber);
         }
 
         return NextResponse.json({ success: true, message: "User registered successfully!" }, { status: 200 });
