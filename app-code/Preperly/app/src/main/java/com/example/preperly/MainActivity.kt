@@ -59,7 +59,6 @@ fun PreperlyNavigation(){
             viewModel4 = UploadImagesViewModel(),
             viewModel5 = MenuViewModel(),
             viewModel6 = RestaurantDashboardViewModel(),
-            viewModel7 = RestaurantMenuScreenViewModel(),
             viewModel8 = OrderDetailsScreenViewModel(),
             viewModel9 = AnalyticsViewModel(),
             sharedViewModel = SharedViewModel()

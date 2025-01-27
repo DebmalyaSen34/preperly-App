@@ -17,16 +17,19 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.preperly.R
 import com.example.preperly.viewmodels.AnalyticsViewModel
+import com.example.preperly.viewmodels.MenuViewModel
 import com.example.preperly.viewmodels.OrderDetailsScreenViewModel
 import com.example.preperly.viewmodels.RestaurantDashboardViewModel
 import com.example.preperly.viewmodels.RestaurantMenuScreenViewModel
+import com.example.preperly.viewmodels.UploadImagesViewModel
 
 @Composable
 fun RestaurantDashboard(
     viewModel: RestaurantDashboardViewModel,
-    viewModel1: RestaurantMenuScreenViewModel,
+    addedMenuViewModel: MenuViewModel,
     viewModel2: OrderDetailsScreenViewModel,
-    viewModel3: AnalyticsViewModel
+    viewModel3: AnalyticsViewModel,
+    viewModel4: UploadImagesViewModel
 ) {
     val navController = rememberNavController()
     Scaffold(
@@ -54,7 +57,10 @@ fun RestaurantDashboard(
             modifier = Modifier.padding(padding)
             ) {
             composable("menu") {
-                RestaurantMenu(viewModel = viewModel1)
+                RestaurantMenu(
+                    addedMenuViewModel = addedMenuViewModel,
+                    imagesViewModel = viewModel4
+                )
             }
             composable("orders") {
                 OrdersScreen(

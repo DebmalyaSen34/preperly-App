@@ -36,7 +36,6 @@ fun RegisterNavHost(
     viewModel4: UploadImagesViewModel,
     viewModel5: MenuViewModel,
     viewModel6: RestaurantDashboardViewModel,
-    viewModel7: RestaurantMenuScreenViewModel,
     viewModel8: OrderDetailsScreenViewModel,
     viewModel9: AnalyticsViewModel,
     sharedViewModel: SharedViewModel
@@ -84,9 +83,10 @@ fun RegisterNavHost(
         composable("step6") {
             RestaurantDashboard(
                 viewModel = viewModel6,
-                viewModel1 = viewModel7,
+                addedMenuViewModel = viewModel5,
                 viewModel2 = viewModel8,
-                viewModel3 = viewModel9
+                viewModel3 = viewModel9,
+                viewModel4 = viewModel4
             )
         }
     }

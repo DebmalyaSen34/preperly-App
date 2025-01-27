@@ -8,11 +8,13 @@ data class Category(
 )
 
 data class MenuItem(
+    val id: Int,
     val name: String,
     val description: String,
     val imageUri: Uri,
     val category: String,
     val subCategory: String,
     val itemType: String,
-    val containsDairy: Boolean
+    val containsDairy: Boolean,
+    val isAvailable: Boolean
 )

@@ -311,7 +311,7 @@ fun DocumentsUploadScreen(
 //                        viewModel.restaurantDocsToApi(sharedViewModel.getPhoneNumber())
 //                        onNext()
 //                    }
-//                    onNext()
+                    onNext()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = myRed),
                 modifier = Modifier.weight(1f)

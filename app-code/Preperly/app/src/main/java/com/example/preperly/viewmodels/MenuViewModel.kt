@@ -46,6 +46,12 @@ class MenuViewModel : ViewModel() {
         menuItems = menuItems.map { if (it == oldItem) newItem else it }
     }
 
+    fun toggleAvailability(itemId: Int) {
+        menuItems = menuItems.map {
+            if (it.id == itemId) it.copy(isAvailable = !it.isAvailable)
+            else it
+        }
+    }
     fun resMenuToApi(phoneNumber: String){
 
         viewModelScope.launch {

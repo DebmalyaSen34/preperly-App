@@ -1,5 +1,10 @@
 package com.example.preperly.screens
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,14 +30,22 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.preperly.datamodels.MenuItem
+import com.example.preperly.viewmodels.MenuViewModel
 import com.example.preperly.viewmodels.RestaurantMenuScreenViewModel
+import com.example.preperly.viewmodels.UploadImagesViewModel
 
 data class MenuItem(
     val id: String,
@@ -43,66 +56,111 @@ data class MenuItem(
 )
 
 @Composable
-fun RestaurantMenu(viewModel: RestaurantMenuScreenViewModel){
+fun RestaurantMenu(
+    addedMenuViewModel: MenuViewModel,
+    imagesViewModel: UploadImagesViewModel
+){
 
-    viewModel.initialItems()
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // Photos Section
-        item {
-            Text(
-                text = "Photos",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-            Row(
-                modifier = Modifier
-                    .padding(vertical = 8.dp)
-                    .height(120.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                PhotoButton(
-                    icon = Icons.Default.Add,
-                    text = "Add photos",
-                    onClick = {},
-                    modifier = Modifier.weight(1f)
+    val context = LocalContext.current
+
+    BackHandler {
+        // Minimize the app
+        (context as? Activity)?.moveTaskToBack(true)
+    }
+//    viewModel.initialItems()
+    val restaurantLogoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uris ->
+        imagesViewModel.restaurantLogo += uris
+        Toast.makeText(context,"Added Logos",Toast.LENGTH_SHORT).show()
+    }
+
+    val restaurantImagesPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uris ->
+        imagesViewModel.restaurantImages += uris
+        Toast.makeText(context,"Added Images",Toast.LENGTH_SHORT).show()
+    }
+
+    var showViewImagesScreen by remember { mutableStateOf(false) }
+
+    if (showViewImagesScreen) {
+        ViewImagesScreen(
+            onBack = { showViewImagesScreen = false },
+            onReupload = { uri, whichImage ->
+                if (whichImage == "Logo") {
+                    imagesViewModel.onDeleteImage(uri, "Logo")
+                    restaurantLogoPicker.launch("image/*")
+                } else {
+                    imagesViewModel.onDeleteImage(uri, "RImages")
+                    restaurantImagesPicker.launch("image/*")
+                }
+            },
+            onDelete = { uri, whichImage -> imagesViewModel.onDeleteImage(uri, whichImage) },
+            viewModel = imagesViewModel
+        )
+    }else{
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Photos Section
+            item {
+                Text(
+                    text = "Photos",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
-                PhotoButton(
-                    icon = Icons.Default.Edit,
-                    text = "Edit photos",
-                    onClick = {},
-                    modifier = Modifier.weight(1f)
+                Row(
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                        .height(120.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    PhotoButton(
+                        icon = Icons.Default.Add,
+                        text = "Add Images",
+                        onClick = {restaurantImagesPicker.launch("image/*")},
+                        modifier = Modifier.weight(1f)
+                    )
+                    PhotoButton(
+                        icon = Icons.Default.Edit,
+                        text = "Edit Images",
+                        onClick = {},
+                        modifier = Modifier.weight(1f)
+                    )
+                    PhotoButton(
+                        icon = Icons.Default.Add,
+                        text = "View photos",
+                        onClick = {
+                            showViewImagesScreen = true
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            // Menu Section
+            item {
+                Text(
+                    text = "Menu",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(top = 16.dp)
                 )
-                PhotoButton(
-                    icon = Icons.Default.Add,
-                    text = "View photos",
-                    onClick = {},
-                    modifier = Modifier.weight(1f)
+            }
+
+            items(addedMenuViewModel.menuItems) { menuItem ->
+                MenuItemCard(
+                    item = menuItem,
+                    onEditClick = {  },
+                    onToggleAvailability = { addedMenuViewModel.toggleAvailability(menuItem.id) }
                 )
             }
         }
-
-        // Menu Section
-        item {
-            Text(
-                text = "Menu",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-        }
-
-        items(viewModel.menuItems) { menuItem ->
-            MenuItemCard(
-                item = menuItem,
-                onEditClick = {  },
-                onToggleAvailability = { viewModel.toggleAvailability(menuItem.id) }
-            )
-        }
     }
+
 }
 
 @Composable
@@ -161,7 +219,7 @@ private fun MenuItemCard(
         ) {
             // Item Image
             AsyncImage(
-                model = item.imageUrl,
+                model = item.imageUri,
                 contentDescription = item.name,
                 modifier = Modifier
                     .size(60.dp)
@@ -197,7 +255,6 @@ private fun MenuItemCard(
                 Switch(
                     checked = item.isAvailable,
                     onCheckedChange = { onToggleAvailability() },
-
                     )
                 Text("Available")
             }

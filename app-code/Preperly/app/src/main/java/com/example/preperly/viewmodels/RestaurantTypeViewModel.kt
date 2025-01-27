@@ -18,7 +18,6 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.regex.Pattern
 
-
 class RestaurantTypeViewModel: ViewModel() {
 
     // Constants and Patterns
@@ -180,7 +179,6 @@ class RestaurantTypeViewModel: ViewModel() {
     }
 
     fun resTypeTimingsToApi(phoneNumber: String){
-
 
         viewModelScope.launch {
 

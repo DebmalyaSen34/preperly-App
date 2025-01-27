@@ -137,13 +137,14 @@ fun MenuUploadScreen(
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = {
-                        onNext()
-//                        if(viewModel.menuItems.isNotEmpty()){
-//                            onNext()
+//                        onNext()
+                        if(viewModel.menuItems.isNotEmpty()){
+                            onNext()
 //                            viewModel.resMenuToApi(sharedViewModel.getPhoneNumber())
-//                        }else{
-//                            Toast.makeText(context,"Please Add your Menu",Toast.LENGTH_SHORT).show()
-//                        }
+                            Toast.makeText(context,"Registered Successfully",Toast.LENGTH_SHORT).show()
+                        }else{
+                            Toast.makeText(context,"Please Add your Menu",Toast.LENGTH_SHORT).show()
+                        }
                         Log.d("Next Button","Clicked")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),
@@ -151,7 +152,7 @@ fun MenuUploadScreen(
                         .weight(1f)
                         .padding(bottom = 16.dp)
                 ) {
-                    Text("Next")
+                    Text("Done")
                 }
             }
         }
@@ -522,18 +523,21 @@ fun AddEditItemDialog(
                         ) {
                         Text("Back")
                     }
+                    var itemId = 0
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = {
                             onConfirm(
                                 MenuItem(
+                                    id = ++itemId,
                                     name = itemName,
                                     description = itemDescription,
                                     itemType = itemType,
                                     containsDairy = containsDairy,
                                     category = selectedCategory?.name ?: "",
                                     subCategory = selectedSubCategory,
-                                    imageUri = imageUri
+                                    imageUri = imageUri,
+                                    isAvailable = true
                                 )
                             )
                         },

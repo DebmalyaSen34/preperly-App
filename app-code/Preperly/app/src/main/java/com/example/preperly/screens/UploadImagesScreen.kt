@@ -74,6 +74,7 @@ fun UploadImagesScreen(
 ) {
     val context = LocalContext.current
     Toast.makeText(context,sharedViewModel.getPhoneNumber(),Toast.LENGTH_SHORT).show()
+
     val restaurantLogoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
