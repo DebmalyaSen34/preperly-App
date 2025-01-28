@@ -1,0 +1,20 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "npm install bcrypt",
+			"command": "npm",
+			"args": [
+				"install",
+				"bcrypt"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/preperly-api-ts"
+			},
+			"presentation": {
+				"reveal": "silent"
+			}
+		}
+	]
+}

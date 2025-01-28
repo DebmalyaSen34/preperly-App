@@ -20,6 +20,21 @@ interface dateTimeDataType {
     slots: timeSlot[];
 }
 
+interface category {
+    name: string,
+    subCategories: string[]
+}
+
+interface menuItem {
+    name: string,
+    description: string,
+    imageUrl: string,
+    price: number,
+    category: category,
+    itemType: string,
+    containsDairy: boolean,
+}
+
 interface VendorDocument extends Document {
     restaurantName: string,
     restaurantAddress: string,
@@ -49,7 +64,9 @@ interface VendorDocument extends Document {
         name: string
     },
     imageUrls: string[],
-    logoUrl: string
+    logoUrl: string,
+    approved: boolean,
+    menu: menuItem[]
 }
 
 const timeSlotSchema = new Schema<timeSlot>({
@@ -71,6 +88,63 @@ const dateTimeDataTypeSchema = new Schema<dateTimeDataType>({
     },
     slots: {
         type: [timeSlotSchema],
+        required: true
+    }
+});
+
+interface category {
+    name: string;
+    subCategory: string[];
+}
+
+interface menuItem {
+    name: string;
+    price: number;
+    description: string;
+    imageUrl: string;
+    category: category;
+    itemType: string;
+    containsDairy: boolean;
+}
+
+const categorySchema = new Schema<category>({
+    name: {
+        type: String,
+        required: true
+    },
+    subCategories: {
+        type: [String],
+        required: true
+    }
+});
+
+const menuItemSchema = new Schema<menuItem>({
+    name: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    imageUrl: {
+        type: String,
+        required: true
+    },
+    price: {
+        type: Number,
+        required: true
+    },
+    category: {
+        type: categorySchema,
+        required: true
+    },
+    itemType: {
+        type: String,
+        required: true
+    },
+    containsDairy: {
+        type: Boolean,
         required: true
     }
 });
@@ -166,6 +240,14 @@ const VendorSchema = new Schema<VendorDocument>({
     },
     logoUrl: {
         type: String,
+        required: true
+    },
+    approved: {
+        type: Boolean,
+        default: false
+    },
+    menu: {
+        type: [menuItemSchema],
         required: true
     }
 });

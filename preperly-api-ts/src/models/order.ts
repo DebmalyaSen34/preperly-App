@@ -22,7 +22,7 @@ interface orderType extends mongoose.Document {
 const orderSchema = new mongoose.Schema({
     customerId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "debs",
         required: true,
         index: true
     },

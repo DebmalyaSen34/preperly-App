@@ -93,6 +93,101 @@ async function step6(phoneNumber: string): Promise<NextResponse> {
     }
 }
 
+//* Step 5: Push the menu and menu images
+
+async function step5(formData: FormData) : Promise<NextResponse> {
+    try {
+        const phoneNumber = formData.get('phoneNumber') as string;
+
+        if(!phoneNumber){
+            return NextResponse.json({ success: false, message: "Phone number not provided!" }, { status: 400 });
+        }
+
+        console.log('====================================');
+        console.log("phonenumber: ", phoneNumber);
+        console.log('====================================');
+        
+        //TODO: Uncomment later after figuring out the data structure of the menu items
+        
+        const user = await client.get(phoneNumber) as string;
+
+        const userData = JSON.parse(user);
+
+        if(!user){
+            return NextResponse.json({ success: false, message: "User not found!" }, { status: 404 });
+        }
+
+        const menuItemsNames = formData.getAll('menuItemNames') as Array<string>;
+        const menuItemsPrice = formData.getAll('menuItemPrice') as Array<string>;
+        const menuItemsDescription = formData.getAll('menuItemDescription') as Array<string>;
+        const menuItemsCategory = formData.getAll('menuItemCategory') as Array<string>;
+        const menuItemsType = formData.getAll('menuItemType') as Array<string>;
+        const menuItemsUrl = formData.getAll('menuItemUrl') as Array<string>;
+        const menuItemsSubCategory = formData.getAll('menuItemSubCategory') as Array<string>;
+        
+        const menuImages = formData.getAll('menuImages') as Array<File>;
+        
+        const menuItems = menuItemsNames.map((name, index) => {
+            return {
+                name,
+                id: `${phoneNumber}-${userData.restaurantName}-${name.replace(' ', '_')}-${index}`,
+                price: menuItemsPrice[index],
+                description: menuItemsDescription[index],
+                category: menuItemsCategory[index],
+                type: menuItemsType[index],
+                subCategory: menuItemsSubCategory[index]
+            }
+        });
+
+        await client.setEx(phoneNumber, 3600, JSON.stringify({ ...JSON.parse(user), menu: menuItems }));
+        
+        
+        if (!menuItems ||!menuImages) {
+            return NextResponse.json({ success: false, message: "Please upload menu items and images!" }, { status: 400 });
+        }
+
+        const uploadMenuImagesWithPhoneNumber = async (file : File, itemName: string) => {
+            const extension = file.name.split('.').pop();
+            const fileName = `${phoneNumber}/menuImages/${itemName}/image-${itemName}-${Date.now()}.${extension}`;
+
+            const blob = bucket.file(fileName);
+            const buffer = Buffer.from(await file.arrayBuffer());
+
+            await blob.save(buffer, {
+                metadata: {
+                    contentType: file.type
+                }
+            });
+
+            return `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+        }
+
+        const imageUrls = await Promise.all(menuImages.map((file, index) => uploadMenuImagesWithPhoneNumber(file, menuItemsNames[index])));
+
+        await client.setEx(phoneNumber, 3600, JSON.stringify({ ...JSON.parse(user), menuImages: imageUrls }));
+
+        console.log('====================================');
+        console.log('Menu Items: ', menuItems);
+        console.log('====================================');
+        console.log('Menu Images: ', menuImages);
+
+
+        return NextResponse.json({
+            success: true,
+            message: "Menu and menu images uploaded successfully!",
+            menuItems,
+            imageUrls
+        }, {
+            status: 200
+        });
+
+    } catch (error) {
+        console.error('Error while uploading menu items', error);
+        return NextResponse.json({ success: false, message: "Error uploading menu items" }, { status: 500 });
+    }
+}
+
+
 //* Step 4: Push restaurant images
 async function step4(formData: FormData): Promise<NextResponse> {
     try {
@@ -287,7 +382,6 @@ async function step1(step1Data: step1DataType): Promise<NextResponse> {
     }
 }
 
-
 export async function POST(request: Request): Promise<NextResponse> {
     try {
         const url = new URL(request.url);
@@ -309,6 +403,9 @@ export async function POST(request: Request): Promise<NextResponse> {
             case '4':
                 const formData4 = await request.formData();
                 return step4(formData4);
+            case '5':
+                const formData5 = await request.formData();
+                return step5(formData5);
             case '6':
                 const { phoneNumber } = await request.json();
                 return step6(phoneNumber);
