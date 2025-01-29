@@ -20,17 +20,13 @@ interface dateTimeDataType {
     slots: timeSlot[];
 }
 
-interface category {
-    name: string,
-    subCategories: string[]
-}
 
 interface menuItem {
     name: string,
     description: string,
     imageUrl: string,
     price: number,
-    category: category,
+    category: string,
     itemType: string,
     containsDairy: boolean,
 }
@@ -92,31 +88,31 @@ const dateTimeDataTypeSchema = new Schema<dateTimeDataType>({
     }
 });
 
-interface category {
-    name: string;
-    subCategory: string[];
-}
+// interface category {
+//     name: string;
+//     subCategory: string[];
+// }
 
 interface menuItem {
     name: string;
     price: number;
     description: string;
     imageUrl: string;
-    category: category;
+    category: string;
     itemType: string;
     containsDairy: boolean;
 }
 
-const categorySchema = new Schema<category>({
-    name: {
-        type: String,
-        required: true
-    },
-    subCategories: {
-        type: [String],
-        required: true
-    }
-});
+// const categorySchema = new Schema<category>({
+//     name: {
+//         type: String,
+//         required: true
+//     },
+//     subCategories: {
+//         type: [String],
+//         required: true
+//     }
+// });
 
 const menuItemSchema = new Schema<menuItem>({
     name: {
@@ -136,7 +132,7 @@ const menuItemSchema = new Schema<menuItem>({
         required: true
     },
     category: {
-        type: categorySchema,
+        type: String,
         required: true
     },
     itemType: {
