@@ -1,90 +1,109 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
-interface itemType {
-    productId: mongoose.Schema.Types.ObjectId,
-    price: number,
-    quantity: number,
-    dishName: string,
-    imageUrl: string
-};
+interface OrderItem {
+  productId: mongoose.Schema.Types.ObjectId;
+  quantity: number;
+  dishName: string;
+  category: string;
+  containsDairy: boolean;
+  price: number;
+  imageUrl: string;
+  itemType: string;
+}
 
-interface orderType extends mongoose.Document {
-    customerId: mongoose.Schema.Types.ObjectId,
-    orderDate: Date,
-    restaurantId: mongoose.Schema.Types.ObjectId,
-    items: itemType[],
-    totalAmount: number,
-    arrivalTime: Date,
-    orderType: string,
-    isActive: boolean,
-};
+interface OrderDocument extends Document {
+  vendorId: mongoose.Schema.Types.ObjectId;
+  customerId: mongoose.Schema.Types.ObjectId;
+  items: OrderItem[];
+  totalAmount: number;
+  orderDate: Date;
+  arrivalTime: Date;
+  orderType: string;
+  isActive: boolean;
+}
 
-const orderSchema = new mongoose.Schema({
-    customerId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "debs",
-        required: true,
-        index: true
-    },
-    orderDate: {
-        type: Date,
-        default: Date.now(),
-        required: true,
-    },
-    restaurantId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "vendor",
-        required: true,
-        index: true
-    },
-    items: [{
-        productId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Product",
-            required: true
-        },
-        price: {
-            type: Number,
-            required: true,
-            min: 0
-        },
-        quantity: {
-            type: Number,
-            required: true,
-            min: 1
-        },
-        dishName: {
-            type: String,
-            required: true
-        },
-        imageUrl: {
-            type: String,
-            required: true
-        }
-    }],
-    totalAmount: {
-        type: Number,
-        required: true,
-        default: 0
-    },
-    arrivalTime: {
-        type: Date,
-        required: true
-    },
-    orderType: {
-        type: String,
-        required: true,
-        enum: ["takeaway", "dine-in"]
-    },
-    isActive: {
-        type: Boolean,
-        required: true,
-        default: true
-    }
-}, {
-    timestamps: true
+const OrderItemSchema = new Schema({
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Vendor.menu._id",
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  dishName: {
+    type: String,
+    required: true,
+  },
+  category: {
+    type: String,
+    required: true,
+  },
+  containsDairy: {
+    type: Boolean,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
+  itemType: {
+    type: String,
+    required: true,
+  },
 });
 
-const Order = mongoose.model<orderType>("Order", orderSchema);
+const OrderSchema = new Schema<OrderDocument>(
+  {
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
+      required: true,
+      index: true,
+    },
+    orderDate: {
+      type: Date,
+      default: Date.now,
+      required: true,
+    },
+    vendorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vendor",
+      required: true,
+      index: true,
+    },
+    items: [OrderItemSchema],
+    totalAmount: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    arrivalTime: {
+      type: Date,
+      required: true,
+    },
+    orderType: {
+      type: String,
+      required: true,
+      enum: ["takeaway", "dine-in"],
+    },
+    isActive: {
+      type: Boolean,
+      required: true,
+      default: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const Order =
+  mongoose.models.Order || mongoose.model<OrderDocument>("Order", OrderSchema);
 
 export default Order;

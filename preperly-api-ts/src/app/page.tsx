@@ -1,9 +1,10 @@
-export default function Page() {
+import Dashboard from "./components/Dashboard";
+
+export default function Home() {
   return (
-    <div className="flex min-h-svh items-center justify-center p-4">
-      <div className="grid gap-8 md:grid-cols-2">
-        <h1>HI</h1>
-      </div>
-    </div>
-  )
+    <main className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-semibold mb-6">API Dashboard</h1>
+      <Dashboard />
+    </main>
+  );
 }
