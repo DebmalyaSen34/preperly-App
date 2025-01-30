@@ -25,9 +25,11 @@ export default async function step6(
 
     const userData = JSON.parse(user);
 
-    await connectToDatabase();
+    console.log("====================================");
+    console.log("userData: ", userData);
+    console.log("====================================");
 
-    console.log("Step 3 data: ", userData.documentsUrl);
+    await connectToDatabase();
 
     const vendor = new Vendor({
       restaurantName: userData.restaurantName,
@@ -41,12 +43,13 @@ export default async function step6(
       ownerEmail: userData.ownerEmail,
       receiveUpdatesOnWhatsApp: userData.receiveUpdatesOnWhatsApp,
       timings: userData.timings,
-      fssai: userData.documentsUrl.fssai,
-      gstin: userData.documentsUrl.gstin,
-      pan: userData.documentsUrl.pan,
-      bankAccount: userData.documentsUrl.bankAccount,
-      imageUrls: userData.imageUrls,
-      logoUrl: userData.logoUrl,
+      fssai: userData.fssai,
+      gstin: userData.gstin,
+      pan: userData.pan,
+      bankAccount: userData.bankAccount,
+      imageUrls: userData.restaurantImagesUrl,
+      logoUrl: userData.restaurantLogoUrl,
+      menu: userData.menuItems,
     });
 
     await vendor.save();

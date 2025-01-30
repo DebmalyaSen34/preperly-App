@@ -71,23 +71,22 @@ export default async function step3(formData: FormData): Promise<NextResponse> {
         uploadDocumentWithPhoneNumber(panCardDocument, "panCard"),
       ]);
 
-    const documentsUrl = {
-      fssai: { license: fssaiLicense, url: fssaiDocumentUrl },
-      gstin: { number: gstin, url: gstinDocumentUrl },
-      pan: { number: panCard, url: panCardDocumentUrl },
-      bankAccount: {
-        number: accountNumber,
-        name: accountHolderName,
-      },
+    const fssai_class = { license: fssaiLicense, url: fssaiDocumentUrl };
+    const gstin_class = { number: gstin, url: gstinDocumentUrl };
+    const pan_class = { number: panCard, url: panCardDocumentUrl };
+    const bankAccount_class = {
+      number: accountNumber,
+      name: accountHolderName,
     };
 
     const userData = JSON.parse(user);
 
-    await client.setEx(
-      phoneNumber,
-      3600,
-      JSON.stringify({ ...userData, documentsUrl: documentsUrl })
-    );
+    userData.fssai = fssai_class;
+    userData.gstin = gstin_class;
+    userData.pan = pan_class;
+    userData.bankAccount = bankAccount_class;
+
+    await client.setEx(phoneNumber, 3600, JSON.stringify(userData));
 
     return NextResponse.json(
       {

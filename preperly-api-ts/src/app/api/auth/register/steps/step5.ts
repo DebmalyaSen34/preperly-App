@@ -137,12 +137,10 @@ export default async function step5(formData: FormData): Promise<NextResponse> {
       item.imageUrl = imageUrls[index];
     });
 
+    userData.menuItems = menuItems;
+
     // Push the menu items and menu images to the redis database
-    await client.setEx(
-      phoneNumber,
-      3600,
-      JSON.stringify({ userData, menuItems: menuItems })
-    );
+    await client.setEx(phoneNumber, 3600, JSON.stringify(userData));
 
     console.log("====================================");
     console.log("Menu Items: ", menuItemswithId);

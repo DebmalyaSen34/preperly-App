@@ -53,8 +53,8 @@ export default async function step4(formData: FormData): Promise<NextResponse> {
 
     const userData = JSON.parse(user);
 
-    userData.imageUrls = imageUrls;
-    userData.logoUrl = logoUrl;
+    userData.restaurantImagesUrl = imageUrls;
+    userData.restaurantLogoUrl = logoUrl;
 
     await client.setEx(phoneNumber, 3600, JSON.stringify(userData));
 
