@@ -1,67 +1,5 @@
-CREATE TABLE public.timings (
-  id CHAR(36) NOT NULL DEFAULT gen_random_uuid(),
-  vendor_id CHAR(36) NULL,
-  day VARCHAR(20) NOT NULL,
-  open_time VARCHAR(20) NOT NULL,
-  close_time VARCHAR(20) NOT NULL,
-  CONSTRAINT timings_pkey PRIMARY KEY (id ASC),
-  CONSTRAINT timings_vendor_id_fkey FOREIGN KEY (vendor_id) REFERENCES public.vendors(id) ON DELETE CASCADE
-) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION
 
-CREATE TABLE public.menu_items (
-  id INT8 NOT NULL DEFAULT unique_rowid(),
-  vendor_id CHAR(36) NULL,
-  name VARCHAR(255) NOT NULL,
-  description STRING NOT NULL,
-  image_url STRING NOT NULL,
-  price DECIMAL NOT NULL,
-  category VARCHAR(255) NOT NULL,
-  item_type VARCHAR(255) NOT NULL,
-  contains_dairy BOOL NOT NULL,
-  CONSTRAINT menu_items_pkey PRIMARY KEY (id ASC),
-  CONSTRAINT menu_items_vendor_id_fkey FOREIGN KEY (vendor_id) REFERENCES public.vendors(id) ON DELETE CASCADE
-) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION
-
-CREATE TABLE public.vendors (
-  id CHAR(36) NOT NULL DEFAULT gen_random_uuid(),
-  restaurant_name VARCHAR(255) NOT NULL,
-  restaurant_address STRING NOT NULL,
-  phone_number VARCHAR(20) NOT NULL,
-  alternate_number VARCHAR(20) NULL,
-  email VARCHAR(255) NOT NULL,
-  password STRING NOT NULL,
-  owner_name VARCHAR(255) NOT NULL,
-  owner_phone_number VARCHAR(20) NOT NULL,
-  owner_email VARCHAR(255) NOT NULL,
-  receive_updates_on_whatsapp BOOL NULL,
-  fssai_license VARCHAR(255) NOT NULL,
-  fssai_url STRING NOT NULL,
-  gstin_number VARCHAR(255) NOT NULL,
-  gstin_url STRING NOT NULL,
-  pan_number VARCHAR(255) NOT NULL,
-  pan_url STRING NOT NULL,
-  bank_account_number VARCHAR(255) NOT NULL,
-  bank_account_name VARCHAR(255) NOT NULL,
-  image_urls STRING[] NOT NULL,
-  logo_url STRING NOT NULL,
-  approved BOOL NULL DEFAULT false,
-  created_at TIMESTAMP NULL DEFAULT current_timestamp():::TIMESTAMP,
-  CONSTRAINT vendors_pkey PRIMARY KEY (id ASC)
-) LOCALITY REGIONAL BY TABLE IN PRIMARY REGION
-
-create table documents(
-  id CHAR(36) NOT NULL DEFAULT gen_random_uuid(),
-  vendor_id CHAR(36) NOT NULL,
-  fssaiLicense STRING NOT NULL unique,
-  fssaiUrl STRING NOT NULL,
-  gstinNumber STRING NOT NULL unique,
-  gstinUrl STRING NOT NULL,
-  panNumber STRING NOT NULL unique,
-  panUrl STRING NOT NULL,
-  bankAccountNumber STRING NOT NULL unique,
-  bankAccountName STRING NOT NULL
-);
-
+-- register done
 create table restaurantImages(
   id CHAR(36) NOT NULL DEFAULT gen_random_uuid(),
   vendor_id CHAR(36) NOT NULL,
@@ -125,4 +63,31 @@ create table documents(
   bankAccountName STRING NOT NULL,
   CONSTRAINT documents_pkey PRIMARY KEY (id ASC),
   CONSTRAINT documents_vendor_id_fkey FOREIGN KEY (vendor_id) REFERENCES public.vendors(id) ON DELETE CASCADE
+)
+
+-- create customer
+create table customers(
+  id CHAR(36) NOT NULL DEFAULT gen_random_uuid(),
+  name STRING NOT NULL,
+  email STRING NOT NULL unique,
+  phoneNumber STRING NOT NULL,
+  password STRING NOT NULL,
+  createdAt TIMESTAMP NULL DEFAULT current_timestamp():::TIMESTAMP,
+  CONSTRAINT customers_pkey PRIMARY KEY (id ASC)
+)
+
+-- create order
+create table orders(
+  id CHAR(36) NOT NULL DEFAULT gen_random_uuid(),
+  customer_id CHAR(36) NOT NULL,
+  vendor_id CHAR(36) NOT NULL,
+  items JSONB NOT NULL,
+  totalAmount DECIMAL NOT NULL,
+  totalQuantity INT8 NOT NULL,
+  orderStatus order_status NOT NULL,
+  arrivaTime TIMESTAMP NOT NULL,
+  orderType order_type NOT NULL,
+  CONSTRAINT orders_pkey PRIMARY KEY (id ASC),
+  CONSTRAINT orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE,
+  CONSTRAINT orders_vendor_id_fkey FOREIGN KEY (vendor_id) REFERENCES public.vendors(id) ON DELETE CASCADE
 )
