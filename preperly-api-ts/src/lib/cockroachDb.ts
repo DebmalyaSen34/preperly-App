@@ -5,7 +5,7 @@ dotenv.config({ path: ".env.local" });
 
 const client = new Client(process.env.COCKROACH_DATABASE_URL);
 
-(async () => {
+const cockroachDb = async () => {
   await client.connect();
   try {
     const results = await client.query("SELECT NOW()");
@@ -13,6 +13,8 @@ const client = new Client(process.env.COCKROACH_DATABASE_URL);
   } catch (err) {
     console.error("error executing query:", err);
   } finally {
-    client.end();
+    await client.end();
   }
-})();
+};
+
+export default cockroachDb;

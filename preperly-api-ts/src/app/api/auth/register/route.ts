@@ -14,7 +14,6 @@ export async function POST(request: Request): Promise<NextResponse> {
     const queryParameters = url.searchParams;
 
     const { step } = Object.fromEntries(queryParameters.entries());
-    console.log(typeof step);
 
     switch (step) {
       case "1":

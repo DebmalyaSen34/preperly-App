@@ -9,6 +9,17 @@ export default async function step4(formData: FormData): Promise<NextResponse> {
     const restaurantImages = formData.getAll("restaurantImages") as File[];
     const restuarantLogo = formData.get("restaurantLogo") as File;
 
+    const user = await client.get(phoneNumber);
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "User not found!" },
+        { status: 404 }
+      );
+    }
+
+    const userData = JSON.parse(user);
+
     if (!restaurantImages || !restuarantLogo) {
       return NextResponse.json(
         { success: false, message: "Please upload images!" },
@@ -41,17 +52,6 @@ export default async function step4(formData: FormData): Promise<NextResponse> {
       restaurantImages.map((file) => uploadImagesWithPhoneNumber(file, "image"))
     );
     const logoUrl = await uploadImagesWithPhoneNumber(restuarantLogo, "logo");
-
-    const user = await client.get(phoneNumber);
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "User not found!" },
-        { status: 404 }
-      );
-    }
-
-    const userData = JSON.parse(user);
 
     userData.restaurantImagesUrl = imageUrls;
     userData.restaurantLogoUrl = logoUrl;
