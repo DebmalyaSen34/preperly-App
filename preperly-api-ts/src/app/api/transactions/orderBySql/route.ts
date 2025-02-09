@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { Client } from "pg";
 import * as dotenv from "dotenv";
-
+import QRCode from "qrcode";
+import { v4 as uuidv4 } from "uuid";
 dotenv.config({ path: ".env.local" });
 
 interface RequestData {
@@ -34,13 +35,17 @@ export async function POST(request: Request): Promise<NextResponse> {
     const cockraochClient = new Client(process.env.COCKROACH_DATABASE_URL);
     await cockraochClient.connect();
 
+    const orderId = uuidv4();
+    const qrCodeData = await QRCode.toDataURL(orderId);
+
     // Insert order data into CockroachDB
     const orderQuery = `
-      INSERT INTO orders (vendor_id, customer_id, arrivaltime, ordertype, items, orderstatus, totalamount, totalquantity)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO orders (id, vendor_id, customer_id, arrivaltime, ordertype, items, orderstatus, totalamount, totalquantity, qrcode)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     `;
 
     const values = [
+      orderId,
       data.vendorId,
       data.customerId,
       data.arrivalTime,
@@ -49,6 +54,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       data.orderStatus,
       data.totalAmount,
       data.totalQuantity,
+      qrCodeData,
     ];
 
     const result = await cockraochClient.query(orderQuery, values);
