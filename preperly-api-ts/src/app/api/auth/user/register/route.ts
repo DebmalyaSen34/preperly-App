@@ -3,12 +3,20 @@ import { Client } from "pg";
 import bcrypt from "bcrypt";
 import redisClient from "@/lib/redisDb";
 import otpGenerator from "otp-generator";
+import { userType } from "@/types/userRegistration";
 
-interface userType {
-  fullName: string;
-  email: string;
-  password: string;
-  phoneNumber: string;
+async function checkUserExists(phoneNumber: string): Promise<boolean> {
+  const client = new Client(process.env.COCKROACH_DATABASE_URL);
+  await client.connect();
+
+  const user = await client.query(
+    "SELECT * FROM customers WHERE phonenumber = $1",
+    [phoneNumber]
+  );
+
+  await client.end();
+
+  return user.rows.length > 0;
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
@@ -23,23 +31,12 @@ export async function POST(request: Request): Promise<NextResponse> {
       );
     }
 
-    const client = new Client(process.env.DATABASE_URL);
-    await client.connect();
-
-    // Check if user already exists
-    const user = await client.query(
-      "SELECT * FROM customers WHERE phonenumber = $1",
-      [data.phoneNumber]
-    );
-
-    if (user.rows.length > 0) {
+    if (await checkUserExists(data.phoneNumber)) {
       return NextResponse.json(
         { success: false, message: "User already exists" },
         { status: 400 }
       );
     }
-
-    await client.end();
 
     // hash password
     const salt = await bcrypt.genSalt(10);
@@ -64,9 +61,14 @@ export async function POST(request: Request): Promise<NextResponse> {
       specialChars: false,
     });
 
+    console.log("Otp generated: ", otp);
+
     // Fast2SMS API key and URL from environment variables
     const api_key = process.env.FAST2SMS_API_KEY;
     const api_url = process.env.FAST2SMS_API_URL;
+
+    console.log("API key: ", api_key);
+    console.log("API URL: ", api_url);
 
     if (!api_key || !api_url) {
       console.error("Fast2SMS API key or URL not provided");
@@ -103,22 +105,22 @@ export async function POST(request: Request): Promise<NextResponse> {
       console.log("Raw response: ", response);
 
       // Parse the response from the Fast2SMS API
-      const data = await response.json();
+      const smsData = await response.json();
 
-      console.log("Parsed response data: ", data);
+      console.log("Parsed response data: ", smsData);
 
       // Check if the OTP was sent successfully
       if (response.ok) {
-        console.log("OTP sent successfully:", data);
+        console.log("OTP sent successfully:", smsData);
 
         // store otp in redis
         await redisClient.setEx(`otp_${data.phoneNumber}`, 300, otp);
 
         console.log("OTP stored in redis successfully", otp);
       } else {
-        console.error("Failed to send OTP:", data);
+        console.error("Failed to send OTP:", smsData);
         return NextResponse.json(
-          { error: "Failed to send OTP", data },
+          { error: "Failed to send OTP", smsData },
           { status: 500 }
         );
       }
