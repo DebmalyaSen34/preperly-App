@@ -19,6 +19,17 @@ async function checkUserExists(phoneNumber: string): Promise<boolean> {
   return user.rows.length > 0;
 }
 
+export async function OPTIONS(): Promise<NextResponse> {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*", // Replace with specific origins in production
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
+}
+
 export async function POST(request: Request): Promise<NextResponse> {
   try {
     const data: userType = await request.json();
@@ -27,14 +38,28 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (!data) {
       return NextResponse.json(
         { success: false, message: "Data not provided" },
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          },
+        }
       );
     }
 
     if (await checkUserExists(data.phoneNumber)) {
       return NextResponse.json(
         { success: false, message: "User already exists" },
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          },
+        }
       );
     }
 
@@ -74,7 +99,14 @@ export async function POST(request: Request): Promise<NextResponse> {
       console.error("Fast2SMS API key or URL not provided");
       return NextResponse.json(
         { success: false, error: "Fast2SMS API key or URL not provided" },
-        { status: 500 }
+        {
+          status: 500,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          },
+        }
       );
     }
 
@@ -121,14 +153,28 @@ export async function POST(request: Request): Promise<NextResponse> {
         console.error("Failed to send OTP:", smsData);
         return NextResponse.json(
           { error: "Failed to send OTP", smsData },
-          { status: 500 }
+          {
+            status: 500,
+            headers: {
+              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Methods": "POST, OPTIONS",
+              "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            },
+          }
         );
       }
     } catch (err) {
       console.error("Error sending OTP:", err);
       return NextResponse.json(
         { success: false, error: "Error sending OTP", err },
-        { status: 500 }
+        {
+          status: 500,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          },
+        }
       );
     }
 
@@ -137,13 +183,27 @@ export async function POST(request: Request): Promise<NextResponse> {
         success: true,
         message: "OTP successfully sent to your mobile number!",
       },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      }
     );
   } catch (error) {
     console.error("Error in user registration: ", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      }
     );
   }
 }

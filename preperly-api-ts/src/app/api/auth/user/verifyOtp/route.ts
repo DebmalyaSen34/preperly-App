@@ -57,6 +57,17 @@ async function verifyOtp(
   }
 }
 
+export async function OPTIONS(): Promise<NextResponse> {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*", // Replace with specific origins in production
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
+}
+
 export async function POST(request: Request): Promise<NextResponse> {
   try {
     const url = new URL(request.url);
@@ -67,7 +78,14 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (!phoneNumber) {
       return NextResponse.json(
         { success: false, message: "Phone number not provided!" },
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          },
+        }
       );
     }
 
@@ -76,14 +94,28 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (!userOtp) {
       return NextResponse.json(
         { success: false, message: "OTP not provided" },
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          },
+        }
       );
     }
 
     if (!(await verifyOtp(phoneNumber, userOtp))) {
       return NextResponse.json(
         { success: false, message: "Invalid OTP" },
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          },
+        }
       );
     }
 
@@ -91,7 +123,14 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (!userDataString) {
       return NextResponse.json(
         { success: false, message: "User data not found!" },
-        { status: 404 }
+        {
+          status: 404,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          },
+        }
       );
     }
     const userData: userType = JSON.parse(userDataString);
@@ -104,7 +143,14 @@ export async function POST(request: Request): Promise<NextResponse> {
 
       return NextResponse.json(
         { success: true, message: "User registered successfully!" },
-        { status: 200 }
+        {
+          status: 200,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          },
+        }
       );
     }
 
@@ -113,13 +159,27 @@ export async function POST(request: Request): Promise<NextResponse> {
         success: false,
         message: "User registration failed! Please try again.",
       },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      }
     );
   } catch (error) {
     console.error("Error registering user:", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      }
     );
   }
 }
