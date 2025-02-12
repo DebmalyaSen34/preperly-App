@@ -4,51 +4,57 @@ import { Client as cockraochClient } from "pg";
 import { userType } from "@/types/userRegistration";
 
 async function insertUser(userData: userType): Promise<boolean> {
-  const client = new cockraochClient(process.env.COCKROACH_DATABASE_URL);
-  await client.connect();
+  let clientOfCockroach: cockraochClient | null = null;
 
-  const query = `
-    INSERT INTO customers
-    (
-    name,
-    phonenumber,
-    email,
-    password
-    )
-    VALUES ($1, $2, $3, $4)
+  try {
+    clientOfCockroach = new cockraochClient(process.env.DATABASE_URL);
+    await clientOfCockroach.connect();
+
+    const query = `
+      INSERT INTO customers
+      (
+      name,
+      phonenumber,
+      email,
+      password
+      )
+      VALUES ($1, $2, $3, $4)
     `;
 
-  const values = [
-    userData.fullName,
-    userData.phoneNumber,
-    userData.email,
-    userData.password,
-  ];
+    const values = [
+      userData.fullName,
+      userData.phoneNumber,
+      userData.email,
+      userData.password,
+    ];
 
-  const result = await client.query(query, values);
+    const result = await clientOfCockroach.query(query, values);
 
-  if (result.rowCount === 0 || !result) {
+    if (result.rowCount === null) return false;
+
+    return result.rowCount > 0;
+  } catch (error) {
+    console.error("Error inserting user into CockroachDB:", error);
     return false;
+  } finally {
+    if (clientOfCockroach) {
+      await clientOfCockroach.end();
+    }
   }
-
-  return true;
 }
 
 async function verifyOtp(
   phoneNumber: string,
   userOtp: string
 ): Promise<boolean> {
-  const actualOtp = await client.get(`otp_${phoneNumber}`);
+  try {
+    const expectedOtp = await client.get(`otp_${phoneNumber}`);
 
-  if (!actualOtp) {
+    return expectedOtp !== null && userOtp === expectedOtp;
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
     return false;
   }
-
-  if (userOtp !== actualOtp) {
-    return false;
-  }
-
-  return true;
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
@@ -90,7 +96,12 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
     const userData: userType = JSON.parse(userDataString);
 
-    if (await insertUser(userData)) {
+    const registrationSuccess = await insertUser(userData);
+
+    if (registrationSuccess) {
+      await client.del(`user_${phoneNumber}`);
+      await client.del(`otp_${phoneNumber}`);
+
       return NextResponse.json(
         { success: true, message: "User registered successfully!" },
         { status: 200 }

@@ -3,7 +3,6 @@ import client from "@/lib/redisDb";
 import Order from "@/models/order";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/utils/db";
-import { Client } from "pg";
 import * as dotenv from "dotenv";
 
 dotenv.config({ path: ".env.local" });
