@@ -7,7 +7,7 @@ async function insertUser(userData: userType): Promise<boolean> {
   let clientOfCockroach: cockraochClient | null = null;
 
   try {
-    clientOfCockroach = new cockraochClient(process.env.DATABASE_URL);
+    clientOfCockroach = new cockraochClient(process.env.COCKROACH_DATABASE_URL);
     await clientOfCockroach.connect();
 
     const query = `
