@@ -19,6 +19,22 @@ async function GET(request: Request): Promise<NextResponse> {
     const client = new Client(process.env.COCKROACH_DATABASE_URL);
     await client.connect();
 
+    const restaurantQuery = `
+        select vendors.id, restaurantName from vendors where id = $1;
+        `;
+    const restaurantValues = [restaurantId];
+    const restaurantResult = await client.query(
+      restaurantQuery,
+      restaurantValues
+    );
+
+    if (restaurantResult.rows.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "No restaurant found with this ID" },
+        { status: 404, headers: corsHeaders }
+      );
+    }
+
     const imagesQuery = `
         select * from restaurantImages where vendor_id = $1;
         `;
@@ -33,7 +49,7 @@ async function GET(request: Request): Promise<NextResponse> {
     }
 
     const menuQuery = `
-        select menuitems.id, name, description, imageurl, price from menuitems join vendors on menuitems.vendor_id = vendors.id where vendors.id = $1;
+        select menuitems.id, vendor_id, name, description, imageurl, price from menuitems join vendors on menuitems.vendor_id = vendors.id where vendors.id = $1;
         `;
     const menuValues = [restaurantId];
     const menuResult = await client.query(menuQuery, menuValues);
@@ -51,6 +67,7 @@ async function GET(request: Request): Promise<NextResponse> {
         data: {
           images: imagesResult.rows,
           menu: menuResult.rows,
+          restaurant: restaurantResult.rows[0],
         },
         message: "Restaurant details fetched successfully",
       },
