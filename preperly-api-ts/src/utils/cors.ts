@@ -1,0 +1,23 @@
+import { NextResponse } from "next/server";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*", //! Replace with specific origins in production
+  "Access-Control-Allow-Methods": "POST, OPTIONS, GET, PUT, DELETE",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export function withCORS(
+  handler: (request: Request) => Promise<NextResponse> | NextResponse
+) {
+  return async function OPTIONS(request: Request): Promise<NextResponse> {
+    if (request.method === "OPTIONS") {
+      return new NextResponse(null, {
+        status: 204,
+        headers: corsHeaders,
+      });
+    }
+    return handler(request);
+  };
+}
+
+export { corsHeaders };
