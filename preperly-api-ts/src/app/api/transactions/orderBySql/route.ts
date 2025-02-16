@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import QRCode from "qrcode";
 import { v4 as uuidv4 } from "uuid";
 dotenv.config({ path: ".env.local" });
+import { corsHeaders, withCORS } from "@/utils/cors";
 
 interface RequestData {
   vendorId: string;
@@ -16,14 +17,14 @@ interface RequestData {
   totalQuantity: number;
 }
 
-export async function POST(request: Request): Promise<NextResponse> {
+async function POST(request: Request): Promise<NextResponse> {
   try {
     const data: RequestData = await request.json();
 
     if (!data) {
       return NextResponse.json(
         { success: false, message: "Data is missing!" },
-        { status: 404 }
+        { status: 404, headers: corsHeaders }
       );
     }
 
@@ -63,7 +64,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (result.rowCount === 0) {
       return NextResponse.json(
         { success: false, message: "Error in inserting data into CockroachDB" },
-        { status: 500 }
+        { status: 500, headers: corsHeaders }
       );
     }
 
@@ -76,7 +77,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         qr: qrCodeData,
         orderId: orderId,
       },
-      { status: 200 }
+      { status: 200, headers: corsHeaders }
     );
   } catch (error) {
     console.error("Error in POST /api/transactions/order: ", error);
@@ -85,7 +86,11 @@ export async function POST(request: Request): Promise<NextResponse> {
         success: false,
         message: "Internal server error!",
       },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }
+
+export { POST };
+
+export const OPTIONS = withCORS(POST);
