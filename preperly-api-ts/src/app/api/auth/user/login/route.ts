@@ -2,28 +2,15 @@ import { NextResponse } from "next/server";
 import { Client } from "pg";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { corsHeaders, withCORS } from "@/utils/cors";
 
 // Interface for request body
 interface bodyData {
   phoneNumber: string;
   password: string;
 }
-// CORS headers
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*", // Replace with specific origins in production
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
 
-// OPTIONS request
-export async function OPTIONS(): Promise<NextResponse> {
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders,
-  });
-}
-
-export async function POST(request: Request): Promise<NextResponse> {
+async function POST(request: Request): Promise<NextResponse> {
   try {
     const data: bodyData = await request.json();
 
@@ -132,3 +119,6 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 }
+
+export { POST };
+export const OPTIONS = withCORS(POST);
