@@ -70,13 +70,21 @@ export async function POST(request: Request): Promise<NextResponse> {
     await cockraochClient.end();
 
     return NextResponse.json(
-      { success: true, message: "Order placed successfully!" },
+      {
+        success: true,
+        message: "Order placed successfully!",
+        qr: qrCodeData,
+        orderId: orderId,
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error in POST /api/transactions/order: ", error);
     return NextResponse.json(
-      { success: false, message: "Internal server error!" },
+      {
+        success: false,
+        message: "Internal server error!",
+      },
       { status: 500 }
     );
   }
