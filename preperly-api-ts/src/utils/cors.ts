@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*", //! Replace with specific origins in production
   "Access-Control-Allow-Methods": "POST, OPTIONS, GET, PUT, DELETE",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, userId",
 };
 
 export function withCORS(
