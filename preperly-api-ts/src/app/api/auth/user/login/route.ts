@@ -89,7 +89,7 @@ async function POST(request: Request): Promise<NextResponse> {
 
     // Generate JWT token
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "30m", // Change it to 30d after testing
+      expiresIn: "15d", //! Change it to 30d after testing
     });
 
     await cockroachDb.end(); // Close connection
