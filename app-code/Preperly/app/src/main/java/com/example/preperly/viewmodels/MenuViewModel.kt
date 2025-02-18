@@ -22,7 +22,7 @@ class MenuViewModel : ViewModel() {
     var categories by mutableStateOf<List<Category>>(emptyList())
     var menuItems by mutableStateOf<List<MenuItem>>(emptyList())
     var currentStep by mutableIntStateOf(5)
-    var registrationResponse by mutableStateOf(UserResponse("",0))
+    var registrationResponse by mutableStateOf(UserResponse(false,"",0))
 
     fun addCategory(category: Category) {
         categories = categories + category
@@ -65,19 +65,19 @@ class MenuViewModel : ViewModel() {
                         // Update UI or notify success
                         if(userResponse?.status == 200){
                             Log.d("UserResponse",userResponse.message)
-                            registrationResponse = UserResponse(message = userResponse.message, status = userResponse.status)
+                            registrationResponse = userResponse
                         }
                     } else {
                         // Handle error
                         Log.d("UserResponse", "Error: ${response.message()}")
-                        registrationResponse = UserResponse(message = response.message(), status = response.code())
+                        registrationResponse = UserResponse(success = response.isSuccessful, message = response.message(), status = response.code())
                     }
                 }
 
                 override fun onFailure(call: Call<UserResponse>, t: Throwable) {
                     // Handle failure
                     Log.d("UserResponse", "No response from API: ${t.message}")
-                    registrationResponse = t.message?.let { UserResponse(message = it, status = 500) }!!
+                    registrationResponse = t.message?.let { UserResponse(success = false, message = it, status = 500) }!!
                 }
             })
         }

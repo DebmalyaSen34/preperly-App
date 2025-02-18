@@ -17,16 +17,16 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 
 interface UserRegisterApiService {
-    @POST("/api/user/register")
+    @POST("/api/auth/register?step=1")
     fun createUser(@Body user: User): Call<UserResponse>
 
-    @POST("/api/user/resType")
+    @POST("/api/auth/register/steps/step2")
     fun restaurantTypeDetails(@Body phoneNumber: String,resTimings: List<DayTimeSlots>, resCuisine: String): Call<UserResponse>
 
     @Multipart
-    @POST("/api/user/docData")
+    @POST("/api/auth/register/steps/step3")
     fun restaurantDocData(
-        @Body phoneNumber: String,
+        @Part("phoneNumber") phoneNumber: RequestBody,
         @Part("fssaiLicence") fssaiLicence: RequestBody,
         @Part("gstin") gstin: RequestBody,
         @Part("panCard") panCard: RequestBody,
@@ -38,15 +38,15 @@ interface UserRegisterApiService {
     ): Call<UserResponse>
 
     @Multipart
-    @POST("api/user/uploadImages")
+    @POST("/api/auth/register/steps/step4")
     fun uploadImages(
-        @Body phoneNumber: String,
+        @Part("phoneNumber") phoneNumber: RequestBody,
         @Part restaurantLogos: List<MultipartBody.Part>,
         @Part restaurantImages: List<MultipartBody.Part>
     ): Call<UserResponse>
 
 
-    @POST("api/user/addMenu")
+    @POST("/api/auth/register/steps/step5")
     fun addMenu(@Body phoneNumber: String,menuItems: List<MenuItem>): Call<UserResponse>
 }
 

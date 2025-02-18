@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -99,6 +100,7 @@ fun RestaurantRegistrationForm(
     val scrollState = rememberScrollState()
     var showSuccessToast by remember { mutableStateOf(false) }
     val registrationResponse by viewModel.registrationResponse.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -422,6 +424,10 @@ fun RestaurantRegistrationForm(
                     Text("I would like to receive important updates in WhatsApp")
                 }
 
+//                if (isLoading) {
+//                    CircularProgressIndicator()
+//                }
+
                 OutlinedTextField(
                     value = ownerEmail,
                     onValueChange = {viewModel.updateOwnerEmail(it)},
@@ -445,23 +451,29 @@ fun RestaurantRegistrationForm(
 
                 Button(
                     onClick = {
-//                        if(viewModel.validateForm() && viewModel.validateAlternatePhone() && viewModel.validateOwnerEmail()){
-//                            viewModel.registerUser()
-//                            if(registrationResponse.status == 200){
-//                                onNext()
-//                            }else{
-//                                Toast.makeText(context,registrationResponse.message,Toast.LENGTH_SHORT).show()
-//                            }
-//                        }
-                        onNext()
+                        if(viewModel.validateForm() && viewModel.validateAlternatePhone() && viewModel.validateOwnerEmail()){
+                            viewModel.registerUser()
+                        }
                         Toast.makeText(context,"Clicked",Toast.LENGTH_SHORT).show()
                     },
+                    enabled = !isLoading, // Disable button when loading
                     colors = ButtonDefaults.buttonColors(containerColor = myRed),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(30.dp)
                 ) {
                     Text("Next")
+                }
+
+                LaunchedEffect(registrationResponse) {
+                    registrationResponse.let {
+                        if (it.success) {
+                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                            onNext()
+                        } else {
+                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
         }

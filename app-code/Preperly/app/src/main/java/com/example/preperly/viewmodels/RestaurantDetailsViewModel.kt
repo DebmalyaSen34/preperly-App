@@ -14,6 +14,7 @@ import com.example.preperly.datamodels.OTPRequest
 import com.example.preperly.datamodels.SendOTPResponse
 import com.example.preperly.datamodels.VerifyOTPResponse
 import com.example.preperly.datamodels.VerifyRequest
+import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -84,8 +85,12 @@ class RestaurantDetailsViewModel : ViewModel() {
 
     var receiveUpdatesOnWhatsApp = mutableStateOf(false)
 
-    private val _registrationResponse = MutableStateFlow(UserResponse("", 0))
+    private val _registrationResponse = MutableStateFlow(UserResponse(false, "",0))
     val registrationResponse: StateFlow<UserResponse> = _registrationResponse
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
 
     // Functions to update each field
     fun updateRestaurantName(newValue: String) {
@@ -276,48 +281,55 @@ class RestaurantDetailsViewModel : ViewModel() {
 
     private fun createUser(): User {
         val user = User(
-            restaurantName = restaurantName.value,
-            restaurantAddress = restaurantAddress.value,
-            phoneNumber = phoneNumber.value,
-            alternateNumber = alternateNumber.value,
-            email = email.value,
-            password = password.value,
-            ownerName = ownerName.value,
-            ownerPhoneNumber = ownerPhoneNumber.value,
-            ownerEmail = ownerEmail.value,
+            restaurantName = restaurantName.value.trim(),
+            restaurantAddress = restaurantAddress.value.trim(),
+            phoneNumber = phoneNumber.value.trim(),
+            alternateNumber = alternateNumber.value.trim(),
+            email = email.value.trim(),
+            password = password.value.trim(),
+            ownerName = ownerName.value.trim(),
+            ownerPhoneNumber = ownerPhoneNumber.value.trim(),
+            ownerEmail = ownerEmail.value.trim(),
             receiveUpdatesOnWhatsApp = receiveUpdatesOnWhatsApp.value
         )
+
 //        Log.d("UserData", user.toString()) // Log the user object to see the data being sent
         return user
     }
 
-    fun registerUser(){
+    fun registerUser(): Boolean{
         viewModelScope.launch {
+            _isLoading.value = true // Show loading before API call
             val user = createUser()
             Log.d("UserData", user.toString())
+            Log.d("UserData", Gson().toJson(user)) // Convert object to JSON string
             RetrofitInstance.userRegisterApi.createUser(user).enqueue(object : Callback<UserResponse> {
                 override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
+                    _isLoading.value = false // Hide loading after response
                     if (response.isSuccessful) {
                         // Handle success
+                        Log.d("hello","hello")
                         val userResponse = response.body()
                         // Update UI or notify success
-                        if(userResponse?.status == 200){
-                            Log.d("UserResponse",userResponse.message)
-                            _registrationResponse.value = UserResponse(userResponse.message, userResponse.status)
+                        if (userResponse != null) {
+                            Log.d("UserResponse",userResponse.toString())
+                            _registrationResponse.value = userResponse
                         }
                     } else {
                         // Handle error
-                        Log.d("UserResponse", "Error: ${response.message()}")
-                        _registrationResponse.value = UserResponse(response.message(), response.code())
+                        Log.d("UserResponse", "Error: ${response.errorBody()}")
+                        _registrationResponse.value = UserResponse(response.isSuccessful,response.message(), response.code())
                     }
                 }
                 override fun onFailure(call: Call<UserResponse>, t: Throwable) {
                     // Handle failure
+                    _isLoading.value = false // Hide loading on failure
                     Log.d("UserResponse", "No response from API: ${t.message}")
-                    _registrationResponse.value = UserResponse(t.message ?: "Unknown error", 500)
+                    _registrationResponse.value = UserResponse(false,t.message ?: "Unknown error", 500)
                 }
             })
         }
+        return true
     }
 
     fun sendOtp(){

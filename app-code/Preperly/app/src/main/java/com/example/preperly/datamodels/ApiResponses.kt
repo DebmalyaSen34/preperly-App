@@ -1,6 +1,7 @@
 package com.example.preperly.datamodels
 
 data class UserResponse(
+    val success: Boolean,
     val message: String,
     val status: Int
 )
