@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { Client } from "pg";
 import { corsHeaders, withCORS } from "@/utils/cors";
 
-async function GET(request: Request) {
+async function GET(request: Request): Promise<NextResponse> {
   try {
     const client = new Client(process.env.COCKROACH_DATABASE_URL);
     await client.connect();
