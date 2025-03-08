@@ -1,4 +1,4 @@
-import { GET } from "@/app/api/getOrders/route";
+import { GET } from "@/app/api/vendor/getOrders/route";
 import Order from "@/models/order";
 import Vendor from "@/models/vendor";
 import { connectToDatabase } from "@/utils/db";

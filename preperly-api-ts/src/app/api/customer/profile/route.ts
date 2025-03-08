@@ -20,19 +20,19 @@ async function GET(request: Request): Promise<NextResponse> {
         }
 
         console.log('customerId:', customerId);
-        // Get order history from supabase
 
-        const { data: orders, error } = await supabase
-            .from('orders')
+        // Get order history from supabase
+        const { data: customerData, error } = await supabase
+            .from('customers')
             .select('*')
-            .eq('customer_id', customerId);
+            .eq('id', customerId);
 
         if (error) {
-            console.error('Error fetching order history:', error);
+            console.error('Error fetching customer data:', error);
             return NextResponse.json(
                 {
                     success: false,
-                    message: 'Failed to fetch order history'
+                    message: 'Failed to fetch customer data'
                 },
                 { status: 500, headers: corsHeaders }
             )
@@ -40,7 +40,7 @@ async function GET(request: Request): Promise<NextResponse> {
 
         return NextResponse.json({
             success: true,
-            data: orders
+            data: customerData
         }, { status: 200, headers: corsHeaders });
 
     } catch (error) {

@@ -2,37 +2,35 @@ import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supbaseDb";
 import { corsHeaders, withCORS } from "@/utils/cors";
 
-async function GET(request: Request): Promise<NextResponse> {
+async function GET(request: Request, { params }: { params: { orderId: string } }): Promise<NextResponse> {
     try {
-        const url = new URL(request.url);
-        const queryParameters = url.searchParams;
 
-        const customerId = queryParameters.get('customerId');
-
-        if (!customerId) {
+        if (!params.orderId) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "Customer ID is missing!"
+                    message: "Order ID is missing!"
                 },
                 { status: 404, headers: corsHeaders }
             )
         }
 
-        console.log('customerId:', customerId);
-        // Get order history from supabase
+        const orderId = params.orderId;
 
-        const { data: orders, error } = await supabase
+        console.log('customerId:', orderId);
+
+        // Get order history from supabase
+        const { data: order, error } = await supabase
             .from('orders')
             .select('*')
-            .eq('customer_id', customerId);
+            .eq('id', orderId);
 
         if (error) {
             console.error('Error fetching order history:', error);
             return NextResponse.json(
                 {
                     success: false,
-                    message: 'Failed to fetch order history'
+                    message: 'Failed to fetch order with ID: ' + orderId
                 },
                 { status: 500, headers: corsHeaders }
             )
@@ -40,14 +38,14 @@ async function GET(request: Request): Promise<NextResponse> {
 
         return NextResponse.json({
             success: true,
-            data: orders
+            data: order
         }, { status: 200, headers: corsHeaders });
 
     } catch (error) {
         console.error('Error fetching order history:', error);
         return NextResponse.json({
             success: false,
-            message: 'Failed to fetch order history'
+            message: 'Failed to fetch your order'
         }, { status: 500, headers: corsHeaders });
     }
 }

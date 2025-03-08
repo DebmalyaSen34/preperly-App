@@ -7,16 +7,16 @@ const corsHeaders = {
 };
 
 export function withCORS(
-  handler: (request: Request) => Promise<NextResponse> | NextResponse
+  handler: (request: Request, context?: any) => Promise<NextResponse> | NextResponse
 ) {
-  return async function OPTIONS(request: Request): Promise<NextResponse> {
+  return async function OPTIONS(request: Request, context?: any): Promise<NextResponse> {
     if (request.method === "OPTIONS") {
       return new NextResponse(null, {
         status: 204,
         headers: corsHeaders,
       });
     }
-    return handler(request);
+    return handler(request, context);
   };
 }
 
