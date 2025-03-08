@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { Client } from "pg";
 import { corsHeaders, withCORS } from "@/utils/cors";
+import { supabase } from "@/lib/supbaseDb";
 
 async function GET(request: Request): Promise<NextResponse> {
   try {
@@ -16,47 +16,64 @@ async function GET(request: Request): Promise<NextResponse> {
       );
     }
 
-    const client = new Client(process.env.COCKROACH_DATABASE_URL);
-    await client.connect();
+    const { data: restaurantData, error } = await supabase
+      .from("vendor")
+      .select("*")
+      .eq("id", restaurantId);
 
-    const restaurantQuery = `
-        select vendors.id, restaurantName from vendors where id = $1;
-        `;
-    const restaurantValues = [restaurantId];
-    const restaurantResult = await client.query(
-      restaurantQuery,
-      restaurantValues
-    );
+    if (error) {
+      console.error("Error fetching restaurant details", error);
+      return NextResponse.json(
+        { success: false, message: "Internal server error" },
+        { status: 500, headers: corsHeaders }
+      );
+    }
 
-    if (restaurantResult.rows.length === 0) {
+    if (!restaurantData || restaurantData.length === 0) {
       return NextResponse.json(
         { success: false, message: "No restaurant found with this ID" },
         { status: 404, headers: corsHeaders }
       );
     }
 
-    const imagesQuery = `
-        select * from restaurantImages where vendor_id = $1;
-        `;
-    const imagesValues = [restaurantId];
-    const imagesResult = await client.query(imagesQuery, imagesValues);
 
-    if (imagesResult.rows.length === 0) {
+    const { data: imagesData, error: imagesError } = await supabase
+      .from("restaurantimages")
+      .select("*")
+      .eq("vendor_id", restaurantId);
+
+    if (imagesError) {
+      console.error("Error fetching restaurant images", imagesError);
       return NextResponse.json(
-        { success: false, message: "No images found for this restaurant" },
+        { success: false, message: "Internal server error" },
+        { status: 500, headers: corsHeaders }
+      );
+    }
+
+
+    if (!imagesData || imagesData.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "No restaurant found with this ID" },
         { status: 404, headers: corsHeaders }
       );
     }
 
-    const menuQuery = `
-        select menuitems.id, vendor_id, name, description, imageurl, price from menuitems join vendors on menuitems.vendor_id = vendors.id where vendors.id = $1;
-        `;
-    const menuValues = [restaurantId];
-    const menuResult = await client.query(menuQuery, menuValues);
+    const { data: menuData, error: menuError } = await supabase
+      .from("menuitems")
+      .select("*")
+      .eq("vendor_id", restaurantId);
 
-    if (menuResult.rows.length === 0) {
+    if (menuError) {
+      console.error("Error fetching menu items", menuError);
       return NextResponse.json(
-        { success: false, message: "No menu items found for this restaurant" },
+        { success: false, message: "No restaurant found with this ID" },
+        { status: 404, headers: corsHeaders }
+      );
+    }
+
+    if (!menuData || menuData.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "No restaurant found with this ID" },
         { status: 404, headers: corsHeaders }
       );
     }
@@ -65,9 +82,9 @@ async function GET(request: Request): Promise<NextResponse> {
       {
         success: true,
         data: {
-          images: imagesResult.rows,
-          menu: menuResult.rows,
-          restaurant: restaurantResult.rows[0],
+          images: imagesData,
+          menu: menuData,
+          restaurant: restaurantData[0],
         },
         message: "Restaurant details fetched successfully",
       },

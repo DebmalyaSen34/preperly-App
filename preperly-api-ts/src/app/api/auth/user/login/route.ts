@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { Client } from "pg";
 import bcrypt from "bcrypt";
+import { supabase } from "@/lib/supbaseDb";
 import jwt from "jsonwebtoken";
 import { corsHeaders, withCORS } from "@/utils/cors";
 
@@ -28,33 +28,27 @@ async function POST(request: Request): Promise<NextResponse> {
       );
     }
 
-    // Connect to CockroachDB
-    const cockroachDb = new Client(process.env.COCKROACH_DATABASE_URL);
-    await cockroachDb.connect();
+    // Connect to supabase
+    const { data: result, error } = await supabase
+      .from("customers")
+      .select("*")
+      .eq("phonenumber", data.phoneNumber);
 
-    const query = `
-            SELECT * FROM customers WHERE phonenumber = $1
-        `;
-
-    const values = [data.phoneNumber];
-
-    const result = await cockroachDb.query(query, values);
-
-    // Check if user exists
-    if (result.rows.length === 0) {
+    if (error) {
+      console.error("Error fetching user:", error);
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid credentials",
+          message: "Internal server error.",
         },
         {
-          status: 401,
+          status: 500,
           headers: corsHeaders,
         }
       );
     }
 
-    const user = result.rows[0];
+    const user = result && result.length > 0 ? result[0] : null;
 
     // Check if password is correct
     const validPassword = await bcrypt.compare(data.password, user.password);
@@ -91,8 +85,6 @@ async function POST(request: Request): Promise<NextResponse> {
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: "15d", //! Change it to 30d after testing
     });
-
-    await cockroachDb.end(); // Close connection
 
     return NextResponse.json(
       {

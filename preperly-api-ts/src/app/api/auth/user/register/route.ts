@@ -1,36 +1,27 @@
 import { NextResponse } from "next/server";
-import { Client } from "pg";
 import bcrypt from "bcrypt";
 import redisClient from "@/lib/redisDb";
 import otpGenerator from "otp-generator";
 import { userType } from "@/types/userRegistration";
+import { supabase } from "@/lib/supbaseDb";
+import { corsHeaders, withCORS } from "@/utils/cors";
 
 async function checkUserExists(phoneNumber: string): Promise<boolean> {
-  const client = new Client(process.env.COCKROACH_DATABASE_URL);
-  await client.connect();
 
-  const user = await client.query(
-    "SELECT * FROM customers WHERE phonenumber = $1",
-    [phoneNumber]
-  );
+  const { data, error } = await supabase
+    .from("customers")
+    .select("*")
+    .eq("phoneNumber", phoneNumber);
 
-  await client.end();
+  if (error) {
+    console.error("Error checking user existence:", error);
+    return false;
+  }
 
-  return user.rows.length > 0;
+  return data && data.length > 0;
 }
 
-export async function OPTIONS(): Promise<NextResponse> {
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*", // Replace with specific origins in production
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
-  });
-}
-
-export async function POST(request: Request): Promise<NextResponse> {
+async function POST(request: Request): Promise<NextResponse> {
   try {
     const data: userType = await request.json();
 
@@ -88,92 +79,68 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     console.log("Otp generated: ", otp);
 
-    // Fast2SMS API key and URL from environment variables
-    const api_key = process.env.FAST2SMS_API_KEY;
-    const api_url = process.env.FAST2SMS_API_URL;
-
-    console.log("API key: ", api_key);
-    console.log("API URL: ", api_url);
-
-    if (!api_key || !api_url) {
-      console.error("Fast2SMS API key or URL not provided");
-      return NextResponse.json(
-        { success: false, error: "Fast2SMS API key or URL not provided" },
-        {
-          status: 500,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
-        }
-      );
-    }
-
-    // Headers for the Fast2SMS API request
-    const headers = {
-      authorization: api_key,
-      "Content-Type": "application/json",
-    };
-
-    // Body for the Fast2SMS API request
-    const body = JSON.stringify({
-      authorization: api_key,
-      route: "otp",
-      sender_id: "TXTIND", // Sender ID, can be customized from Fast2SMS dashboard
-      variables_values: otp, // The OTP to be sent
-      language: "english",
-      numbers: data.phoneNumber, // The phone number where the OTP should be sent
-    });
-
+    /* Using another messagin service */
     try {
-      // Send the OTP using the Fast2SMS API
-      const response = await fetch(api_url, {
-        method: "POST",
-        headers,
-        body,
-      });
+      // Use environment variables for sensitive data
+      const messageServiceUrl = process.env.MESSAGE_CENTRAL_URL || "https://cpaas.messagecentral.com/verification/v3/send";
+      const customerID = process.env.MESSAGE_CENTRAL_CUSTOMER_ID || "C-8CE892DD3F964C9";
+      const authToken = process.env.MESSAGE_CENTRAL_AUTH_TOKEN;
 
-      console.log("Raw response: ", response);
-
-      // Parse the response from the Fast2SMS API
-      const smsData = await response.json();
-
-      console.log("Parsed response data: ", smsData);
-
-      // Check if the OTP was sent successfully
-      if (response.ok) {
-        console.log("OTP sent successfully:", smsData);
-
-        // store otp in redis
-        await redisClient.setEx(`otp_${data.phoneNumber}`, 300, otp);
-
-        console.log("OTP stored in redis successfully", otp);
-      } else {
-        console.error("Failed to send OTP:", smsData);
+      if (!authToken) {
+        console.error("Message service auth token is not configured");
         return NextResponse.json(
-          { error: "Failed to send OTP", smsData },
+          { success: false, message: "OTP service configuration error" },
           {
             status: 500,
-            headers: {
-              "Access-Control-Allow-Origin": "*",
-              "Access-Control-Allow-Methods": "POST, OPTIONS",
-              "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            },
+            headers: corsHeaders,
           }
         );
       }
-    } catch (err) {
-      console.error("Error sending OTP:", err);
+
+      // Build the request URL with the dynamic phone number
+      const url = new URL(messageServiceUrl);
+      url.searchParams.append("countryCode", "91");
+      url.searchParams.append("customerId", customerID);
+      url.searchParams.append("flowType", "SMS");
+      url.searchParams.append("mobileNumber", data.phoneNumber);
+      url.searchParams.append("otpLength", "6");
+      url.searchParams.append("otpValue", otp); // Add the OTP to the request
+
+      // Use modern fetch API with proper error handling
+      const response = await fetch(url.toString(), {
+        method: "POST",
+        headers: {
+          "authToken": authToken,
+          "Content-Type": "application/json",
+        }
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        console.error("Failed to send OTP:", responseData);
+        return NextResponse.json(
+          { success: false, message: "Failed to send verification code" },
+          {
+            status: 500,
+            headers: corsHeaders,
+          }
+        );
+      }
+
+      console.log("OTP sent successfully:", responseData);
+
+      // Store OTP in Redis for verification
+      await redisClient.setEx(`otp_${data.phoneNumber}`, 300, otp);
+      console.log("OTP stored in Redis successfully");
+
+    } catch (error) {
+      console.error("Error sending OTP:", error);
       return NextResponse.json(
-        { success: false, error: "Error sending OTP", err },
+        { success: false, message: "Failed to send verification code" },
         {
           status: 500,
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          },
+          headers: corsHeaders,
         }
       );
     }
@@ -185,25 +152,19 @@ export async function POST(request: Request): Promise<NextResponse> {
       },
       {
         status: 200,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      }
-    );
+        headers: corsHeaders,
+      });
   } catch (error) {
     console.error("Error in user registration: ", error);
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       {
         status: 500,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
+        headers: corsHeaders,
       }
     );
   }
 }
+
+export { POST };
+export const OPTIONS = withCORS(POST);

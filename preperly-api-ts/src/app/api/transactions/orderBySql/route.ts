@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { Client } from "pg";
 import * as dotenv from "dotenv";
 import QRCode from "qrcode";
 import { v4 as uuidv4 } from "uuid";
+import { supabase } from "@/lib/supbaseDb";
 dotenv.config({ path: ".env.local" });
 import { corsHeaders, withCORS } from "@/utils/cors";
 
@@ -33,42 +33,62 @@ async function POST(request: Request): Promise<NextResponse> {
     console.log("====================================");
 
     // Connect to CockroachDB
-    const cockraochClient = new Client(process.env.COCKROACH_DATABASE_URL);
-    await cockraochClient.connect();
 
     const orderId = uuidv4();
     const qrCodeData = await QRCode.toDataURL(orderId);
 
     // Insert order data into CockroachDB
-    const orderQuery = `
-      INSERT INTO orders (id, vendor_id, customer_id, arrivaltime, ordertype, items, orderstatus, totalamount, totalquantity, qrcode)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    `;
+    // const orderQuery = `
+    //   INSERT INTO orders (id, vendor_id, customer_id, arrivaltime, ordertype, items, orderstatus, totalamount, totalquantity, qrcode)
+    //   VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    // `;
 
-    const values = [
-      orderId,
-      data.vendorId,
-      data.customerId,
-      data.arrivalTime,
-      data.orderType,
-      data.items,
-      data.orderStatus,
-      data.totalAmount,
-      data.totalQuantity,
-      qrCodeData,
-    ];
+    // const values = [
+    //   orderId,
+    //   data.vendorId,
+    //   data.customerId,
+    //   data.arrivalTime,
+    //   data.orderType,
+    //   data.items,
+    //   data.orderStatus,
+    //   data.totalAmount,
+    //   data.totalQuantity,
+    //   qrCodeData,
+    // ];
 
-    const result = await cockraochClient.query(orderQuery, values);
+    // const result = await cockraochClient.query(orderQuery, values);
 
-    // Check if data is inserted into CockroachDB
-    if (result.rowCount === 0) {
+    console.log("====================================");
+    console.log('inserting into supabase....');
+    console.log("====================================");
+
+    const { error } = await supabase
+      .from("orders")
+      .insert({
+        id: orderId,
+        vendor_id: data.vendorId,
+        customer_id: data.customerId,
+        arrivaltime: data.arrivalTime,
+        ordertype: data.orderType,
+        items: data.items,
+        orderstatus: data.orderStatus,
+        totalamount: data.totalAmount,
+        totalquantity: data.totalQuantity,
+        qrcode: qrCodeData,
+      });
+
+    console.log("====================================");
+    console.log('inserted into supabase....');
+    console.log("====================================");
+
+    // Check if there was an error during insertion
+    if (error) {
+      console.error("There was an error inserting data into CockroachDB: ", error);
       return NextResponse.json(
         { success: false, message: "Error in inserting data into CockroachDB" },
         { status: 500, headers: corsHeaders }
       );
     }
-
-    await cockraochClient.end();
 
     return NextResponse.json(
       {

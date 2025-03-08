@@ -1,21 +1,35 @@
 import { NextResponse } from "next/server";
-import { Client } from "pg";
+import { supabase } from "@/lib/supbaseDb";
 import { corsHeaders, withCORS } from "@/utils/cors";
 
 async function GET(): Promise<NextResponse> {
   try {
-    const client = new Client(process.env.COCKROACH_DATABASE_URL);
-    await client.connect();
 
-    const query = `
-        select vendors.id, restaurantname, restaurantaddress, logourl from vendors join restaurantimages on vendors.id = restaurantimages.vendor_id;
-        `;
+    const { data: result, error } = await supabase
+      .from("vendor")
+      .select("*");
 
-    const result = await client.query(query);
 
-    await client.end();
+    if (error) {
+      console.error("Error fetching vendors: ", error);
+      return NextResponse.json(
+        {
+          success: false,
+          data: [],
+          message: "No vendors available",
+        },
+        {
+          status: 404,
+          headers: corsHeaders,
+        }
+      );
+    }
 
-    if (result.rows.length === 0) {
+    console.log("====================================");
+    console.log("result: ", result);
+    console.log("====================================");
+
+    if (result.length === 0) {
       return NextResponse.json(
         {
           success: false,
@@ -32,7 +46,7 @@ async function GET(): Promise<NextResponse> {
     return NextResponse.json(
       {
         success: true,
-        data: result.rows,
+        data: result,
         message: "Vendors fetched successfully",
       },
       {

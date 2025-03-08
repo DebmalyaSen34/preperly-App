@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import client from "@/lib/redisDb";
-import { connectToDatabase } from "@/utils/db";
-import Vendor from "@/models/vendor";
-import { Client } from "pg";
 import * as dotenv from "dotenv";
 import { menuItem } from "@/types/registration";
 import { supabase } from "@/lib/supbaseDb";

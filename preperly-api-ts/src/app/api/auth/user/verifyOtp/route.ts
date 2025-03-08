@@ -1,45 +1,28 @@
 import { NextResponse } from "next/server";
 import client from "@/lib/redisDb";
-import { Client as cockraochClient } from "pg";
 import { userType } from "@/types/userRegistration";
+import { supabase } from "@/lib/supbaseDb";
 
 async function insertUser(userData: userType): Promise<boolean> {
-  let clientOfCockroach: cockraochClient | null = null;
-
   try {
-    clientOfCockroach = new cockraochClient(process.env.COCKROACH_DATABASE_URL);
-    await clientOfCockroach.connect();
+    const { error } = await supabase
+      .from("customers")
+      .insert({
+        name: userData.fullName,
+        email: userData.email,
+        password: userData.password,
+        phonenumber: userData.phoneNumber,
+      });
 
-    const query = `
-      INSERT INTO customers
-      (
-      name,
-      phonenumber,
-      email,
-      password
-      )
-      VALUES ($1, $2, $3, $4)
-    `;
+    if (error) {
+      console.error("Error inserting user into CockroachDB:", error);
+      return false;
+    }
 
-    const values = [
-      userData.fullName,
-      userData.phoneNumber,
-      userData.email,
-      userData.password,
-    ];
-
-    const result = await clientOfCockroach.query(query, values);
-
-    if (result.rowCount === null) return false;
-
-    return result.rowCount > 0;
+    return true;
   } catch (error) {
     console.error("Error inserting user into CockroachDB:", error);
     return false;
-  } finally {
-    if (clientOfCockroach) {
-      await clientOfCockroach.end();
-    }
   }
 }
 

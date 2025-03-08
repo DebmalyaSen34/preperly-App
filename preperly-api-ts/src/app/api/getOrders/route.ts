@@ -1,20 +1,18 @@
 import { NextResponse } from "next/server";
-import Order from "@/models/order";
-import Vendor from "@/models/vendor";
 import { Client } from "pg";
 
-async function checkVendorId(vendorId: string): Promise<boolean> {
-    try {
+// async function checkVendorId(vendorId: string): Promise<boolean> {
+//     try {
 
-        const vendor = await Vendor.findById(vendorId);
+//         const vendor = await Vendor.findById(vendorId);
 
-        return !!vendor;
+//         return !!vendor;
 
-    } catch (error) {
-        console.error('Error checking vendorId:', error);
-        return false;
-    }
-}
+//     } catch (error) {
+//         console.error('Error checking vendorId:', error);
+//         return false;
+//     }
+// }
 
 
 export async function GET(request: Request) {
