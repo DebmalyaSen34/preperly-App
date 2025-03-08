@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Order from "@/models/order";
-import { connectToDatabase } from "@/utils/db";
 import Vendor from "@/models/vendor";
+import { Client } from "pg";
 
 async function checkVendorId(vendorId: string): Promise<boolean> {
     try {
@@ -28,23 +28,41 @@ export async function GET(request: Request) {
             return NextResponse.json({ message: "VendorId is missing!" }, { status: 404 });
         }
 
-        await connectToDatabase();
-
-        if (!await checkVendorId(vendorId)) {
-            return NextResponse.json({ message: "Invalid vendorId!" }, { status: 400 });
-        }
-
         console.log('vendorId:', vendorId);
 
-        const items_per_page = 10;
+        const cockroachClient = new Client(process.env.COCKROACH_DATABASE_URL);
+        await cockroachClient.connect();
 
-        const orders = await Order.find({ restaurantId: vendorId }).sort({ createdAt: -1 }).limit(items_per_page);
+        console.log('Connected to CockroachDB');
 
-        if (orders.length === 0) {
-            return NextResponse.json({ message: "No orders found!" }, { status: 404 });
-        }
 
-        return NextResponse.json({ message: 'Orders for your restaurant: ', orders }, { status: 200 });
+        const orderQuery = `
+            SELECT * FROM orders WHERE vendor_id = $1`
+
+        const values = [vendorId];
+
+        const result = await cockroachClient.query(orderQuery, values);
+
+        console.log('result:', result.rows);
+
+        await cockroachClient.end();
+
+        // if (!await checkVendorId(vendorId)) {
+        //     return NextResponse.json({ message: "Invalid vendorId!" }, { status: 400 });
+        // }
+
+
+
+
+        // const items_per_page = 10;
+
+        // const orders = await Order.find({ restaurantId: vendorId }).sort({ createdAt: -1 }).limit(items_per_page);
+
+        // if (orders.length === 0) {
+        //     return NextResponse.json({ message: "No orders found!" }, { status: 404 });
+        // }
+
+        return NextResponse.json({ message: 'Orders for your restaurant: ', orders: result.rows }, { status: 200 });
 
     } catch (error) {
         console.error('Error getting orders:', error);

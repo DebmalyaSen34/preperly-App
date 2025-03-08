@@ -18,18 +18,19 @@ interface timeSlot {
 
 interface dateTimeDataType {
   day:
-    | "monday"
-    | "tuesday"
-    | "wednesday"
-    | "thursday"
-    | "friday"
-    | "saturday"
-    | "sunday";
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
   slots: timeSlot[];
 }
 
 export interface step2DataType {
   phoneNumber: string;
+  //* Add cuisine type
   timings: dateTimeDataType[];
 }
 

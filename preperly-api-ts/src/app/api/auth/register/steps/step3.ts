@@ -25,6 +25,7 @@ export default async function step3(formData: FormData): Promise<NextResponse> {
       !panCardDocument
     ) {
       return NextResponse.json(
+        //* Separate strings and document
         { success: false, message: "Please fill in all the fields!" },
         { status: 400 }
       );

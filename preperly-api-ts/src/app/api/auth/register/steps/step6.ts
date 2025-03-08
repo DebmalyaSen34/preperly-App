@@ -5,6 +5,7 @@ import Vendor from "@/models/vendor";
 import { Client } from "pg";
 import * as dotenv from "dotenv";
 import { menuItem } from "@/types/registration";
+import { supabase } from "@/lib/supbaseDb";
 
 dotenv.config({ path: ".env.local" });
 
@@ -34,75 +35,56 @@ export default async function step6(
     console.log("userData: ", userData);
     console.log("====================================");
 
-    await connectToDatabase();
+    // await connectToDatabase();
 
-    // Saving data in mongoDB
-    const vendor = new Vendor({
-      restaurantName: userData.restaurantName,
-      restaurantAddress: userData.restaurantAddress,
-      phoneNumber: userData.phoneNumber,
-      alternateNumber: userData.alternateNumber,
-      password: userData.password,
-      email: userData.email,
-      ownerName: userData.ownerName,
-      ownerPhoneNumber: userData.ownerPhoneNumber,
-      ownerEmail: userData.ownerEmail,
-      receiveUpdatesOnWhatsApp: userData.receiveUpdatesOnWhatsApp,
-      timings: userData.timings,
-      fssai: userData.fssai,
-      gstin: userData.gstin,
-      pan: userData.pan,
-      bankAccount: userData.bankAccount,
-      imageUrls: userData.restaurantImagesUrl,
-      logoUrl: userData.restaurantLogoUrl,
-      menu: userData.menuItems,
-    });
+    // // Saving data in mongoDB
+    // const vendor = new Vendor({
+    //   restaurantName: userData.restaurantName,
+    //   restaurantAddress: userData.restaurantAddress,
+    //   phoneNumber: userData.phoneNumber,
+    //   alternateNumber: userData.alternateNumber,
+    //   password: userData.password,
+    //   email: userData.email,
+    //   ownerName: userData.ownerName,
+    //   ownerPhoneNumber: userData.ownerPhoneNumber,
+    //   ownerEmail: userData.ownerEmail,
+    //   receiveUpdatesOnWhatsApp: userData.receiveUpdatesOnWhatsApp,
+    //   timings: userData.timings,
+    //   fssai: userData.fssai,
+    //   gstin: userData.gstin,
+    //   pan: userData.pan,
+    //   bankAccount: userData.bankAccount,
+    //   imageUrls: userData.restaurantImagesUrl,
+    //   logoUrl: userData.restaurantLogoUrl,
+    //   menu: userData.menuItems,
+    // });
 
-    await vendor.save();
+    // await vendor.save();
 
     // Saving data in cockroachdb
     try {
-      const cockraochClient = new Client(process.env.COCKROACH_DATABASE_URL);
-      await cockraochClient.connect();
 
       // insert basic restaurant info into vendor table
-      const insertQuery = `
-      INSERT INTO vendors (
-      restaurantName,
-      restaurantAddress,
-      phoneNumber,
-      alternateNumber,
-      password,
-      email,
-      ownerName,
-      ownerPhoneNumber,
-      ownerEmail,
-      receiveUpdatesOnWhatsApp
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      `;
 
-      const values = [
-        userData.restaurantName,
-        userData.restaurantAddress,
-        userData.phoneNumber,
-        userData.alternateNumber,
-        userData.password,
-        userData.email,
-        userData.ownerName,
-        userData.ownerPhoneNumber,
-        userData.ownerEmail,
-        userData.receiveUpdatesOnWhatsApp,
-      ];
+      const { data: vendorData, error: vendorError } = await supabase
+        .from('vendor')
+        .insert({
+          restaurantname: userData.restaurantName,
+          restaurantaddress: userData.restaurantAddress,
+          password: userData.password,
+          phonenumber: userData.phoneNumber,
+          alternatenumber: userData.alternateNumber,
+          email: userData.email,
+          ownername: userData.ownerName,
+          ownerphonenumber: userData.ownerPhoneNumber,
+          owneremail: userData.ownerEmail,
+          receiveupdatesonwhatsApp: userData.receiveUpdatesOnWhatsApp,
+        })
+        .select('id')
+        .single();
 
-      const result = await cockraochClient.query(insertQuery, values);
-
-      console.log("====================================");
-      console.log("result: ", result);
-      console.log("====================================");
-
-      // check if data is inserted into cockroachdb
-      if (result.rowCount === 0) {
+      if (vendorError || !vendorData) {
+        console.error("Error in inserting data into cockroachdb: ", vendorError);
         return NextResponse.json(
           {
             success: false,
@@ -112,50 +94,30 @@ export default async function step6(
         );
       }
 
-      // get vendorId from vendor table
-      const getVendorIdQuery = `
-      SELECT id FROM vendors WHERE phoneNumber = $1
-      `;
-
-      const vendorId = await cockraochClient.query(getVendorIdQuery, [
-        userData.phoneNumber,
-      ]);
+      const vendorId = vendorData.id;
 
       console.log("====================================");
       console.log("vendorId: ", vendorId);
       console.log("====================================");
 
       // insert restaurant timings into timings table
-      const insertTimingsQuery = `
-      INSERT INTO timings (
-      vendor_id,
-      day,
-      openTime,
-      closeTime
-      )
-      VALUES ($1, $2, $3, $4)`;
-
       for (let i = 0; i < userData.timings.length; i++) {
         for (let j = 0; j < userData.timings[i].slots.length; j++) {
-          const values = [
-            vendorId.rows[0].id,
-            userData.timings[i].day,
-            userData.timings[i].slots[j].openTime,
-            userData.timings[i].slots[j].closeTime,
-          ];
+          const { error: timingError } = await supabase
+            .from('timings')
+            .insert({
+              vendor_id: vendorId,
+              day: userData.timings[i].day,
+              opentime: userData.timings[i].slots[j].openTime,
+              closetime: userData.timings[i].slots[j].closeTime,
+            });
 
-          const result = await cockraochClient.query(
-            insertTimingsQuery,
-            values
-          );
-
-          // check if data is inserted into cockroachdb
-
-          if (result.rowCount === 0) {
+          if (timingError) {
+            console.error("Error inserting timing data:", timingError);
             return NextResponse.json(
               {
                 success: false,
-                message: "Error in inserting data into cockroachdb",
+                message: "Error inserting timing data into Supabase",
               },
               { status: 500 }
             );
@@ -164,88 +126,54 @@ export default async function step6(
       }
 
       // insert documents details into fssai table
-      const insertDocumentsQuery = `
-        INSERT INTO documents(
-          vendor_id,
-          fssailicense,
-          fssaiurl,
-          gstinnumber,
-          gstinurl,
-          pannumber,
-          panurl,
-          bankaccountnumber,
-          bankaccountname
-        )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      `;
-
-      const documentValues = [
-        vendorId.rows[0].id,
-        userData.fssai.license,
-        userData.fssai.url,
-        userData.gstin.number,
-        userData.gstin.url,
-        userData.pan.number,
-        userData.pan.url,
-        userData.bankAccount.number,
-        userData.bankAccount.name,
-      ];
-
-      const documentResult = await cockraochClient.query(
-        insertDocumentsQuery,
-        documentValues
-      );
+      const { error: documentError } = await supabase
+        .from('documents')
+        .insert({
+          vendor_id: vendorId,
+          fssailicense: userData.fssai.license,
+          fssaiurl: userData.fssai.url,
+          gstinnumber: userData.gstin.number,
+          gstinurl: userData.gstin.url,
+          pannumber: userData.pan.number,
+          panurl: userData.pan.url,
+          bankaccountnumber: userData.bankAccount.number,
+          bankaccountname: userData.bankAccount.name,
+        });
 
       // check if data is inserted into cockroachdb
-      if (documentResult.rowCount === 0) {
+      if (documentError) {
+        console.error("Error inserting document data:", documentError);
         return NextResponse.json(
           {
             success: false,
-            message: "Error in inserting data into cockroachdb",
+            message: "Error inserting document data into Supabase",
           },
           { status: 500 }
         );
       }
 
       // insert menuItems to the database
-      const insertMenuItemsQuery = `
-      INSERT INTO menuitems (
-        vendor_id,
-        name,
-        description,
-        price,
-        category,
-        itemtype,
-        imageUrl,
-        containsdairy
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      `;
-
       for (let i = 0; i < userData.menuItems.length; i++) {
         const menuItem: menuItem = userData.menuItems[i];
-        const values = [
-          vendorId.rows[0].id,
-          menuItem.name,
-          menuItem.description,
-          menuItem.price,
-          menuItem.category,
-          menuItem.itemType,
-          menuItem.imageUrl,
-          menuItem.containsDairy,
-        ];
+        const { error: menuItemError } = await supabase
+          .from('menuitems')
+          .insert({
+            vendor_id: vendorId,
+            name: menuItem.name,
+            description: menuItem.description,
+            price: menuItem.price,
+            category: menuItem.category,
+            itemtype: menuItem.itemType,
+            imageurl: menuItem.imageUrl,
+            containsdairy: menuItem.containsDairy,
+          });
 
-        const result = await cockraochClient.query(
-          insertMenuItemsQuery,
-          values
-        );
-
-        // check if data is inserted into cockroachdb
-        if (result.rowCount === 0) {
+        if (menuItemError) {
+          console.error("Error inserting menu item:", menuItemError);
           return NextResponse.json(
             {
               success: false,
-              message: "Error in inserting data into cockroachdb",
+              message: "Error inserting menu item into Supabase",
             },
             { status: 500 }
           );
@@ -253,38 +181,24 @@ export default async function step6(
       }
 
       // Insert restaurant images into the database
-      const insertImagesQuery = `
-      INSERT INTO restaurantimages (
-        vendor_id,
-        imageurls,
-        logourl
-      )
-      VALUES ($1, $2, $3)
-      `;
+      const { error: imageError } = await supabase
+        .from('restaurantimages')
+        .insert({
+          vendor_id: vendorId,
+          imageurls: userData.restaurantImagesUrl,
+          logourl: userData.restaurantLogoUrl,
+        });
 
-      const imagesValues = [
-        vendorId.rows[0].id,
-        userData.restaurantImagesUrl,
-        userData.restaurantLogoUrl,
-      ];
-
-      const imagesResult = await cockraochClient.query(
-        insertImagesQuery,
-        imagesValues
-      );
-
-      // check if data is inserted into cockroachdb
-      if (imagesResult.rowCount === 0) {
+      if (imageError) {
+        console.error("Error inserting restaurant images:", imageError);
         return NextResponse.json(
           {
             success: false,
-            message: "Error in inserting data into cockroachdb",
+            message: "Error inserting restaurant images into Supabase",
           },
           { status: 500 }
         );
       }
-
-      await cockraochClient.end();
     } catch (error) {
       console.error("Error in inserting data into cockroachdb: ", error);
       return NextResponse.json(
