@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supbaseDb";
 import { corsHeaders, withCORS } from "@/utils/cors";
 
-async function GET(request: Request, { params }: { params: { orderId: string } }): Promise<NextResponse> {
+async function GET(request: Request): Promise<NextResponse> {
     try {
+        const url = new URL(request.url);
+        const orderId = url.pathname.split('/').pop();
 
-        if (!params.orderId) {
+        if (!orderId) {
             return NextResponse.json(
                 {
                     success: false,
@@ -15,9 +17,7 @@ async function GET(request: Request, { params }: { params: { orderId: string } }
             )
         }
 
-        const orderId = params.orderId;
-
-        console.log('customerId:', orderId);
+        console.log('orderId:', orderId);
 
         // Get order history from supabase
         const { data: order, error } = await supabase
